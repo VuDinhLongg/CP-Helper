@@ -15,14 +15,13 @@
 <body>
     <div class="app-container">
         <aside class="sidebar" id="sidebar">
-            <div class="logo-container" style="display: flex; align-items: center; padding: 15px 20px; gap: 15px;">
+            <div class="logo-container">
                 <button onclick="toggleSidebar()" style="background: none; border: none; color: #ccc; font-size: 20px; cursor: pointer; padding: 0;">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 
                 <div class="brand-wrapper" onclick="window.location.href='index.html'" style="cursor: pointer; display: flex; align-items: center; gap: 10px">
                     <img src="https://cdn.iconscout.com/icon/free/png-256/codeforces-3521352-2944796.png" alt="CF Logo" style="width: 25px; height: 25px; object-fit: contain;">
-                    
                     <span id="logo-text" style="color: #FFD700; font-size: 22px; font-weight: bold;">CP Helper</span>
                 </div>
             </div>
@@ -45,8 +44,7 @@
 
         <main class="content">
             <div id="visualizer" class="tab-content active">
-                <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    
+                <header style="margin-bottom: 8px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <h2><i class="fa-brands fa-slack"></i> Algo Visualizer</h2>
                         
@@ -68,7 +66,6 @@
                     </div>
 
                     <div class="actions" style="display: flex; align-items: center; gap: 10px;">
-                        
                         <button class="btn btn-primary" onclick="startAlgorithm()" style="background-color: green; margin: 0;">Chạy thuật toán</button>
                         
                         <div style="display: flex; flex-direction: column; border-radius: 6px; overflow: hidden; border: 1px solid #333;">
@@ -79,37 +76,30 @@
                                 Xóa màu duyệt
                             </button>
                         </div>
-
                     </div>
                 </header>
                 
-                <div class="grid-legend" style="display: flex; justify-content: center; gap: 25px; margin-bottom: 5px; flex-wrap: wrap; padding: 5px; background-color: #252526; border-radius: 8px; border: 1px solid #333;">
-                    
-                    <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                <div class="grid-legend">
+                    <div class="legend-item">
                         <div style="width: 20px; height: 20px; border: 2px solid #2ecc71; border-radius: 50%; background-color: rgba(46, 204, 113, 0.2); box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);"></div>
                         <span style="color: #ccc; font-size: 13px; font-weight: 600;">Điểm xuất phát</span>
                     </div>
-
-                    <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                    <div class="legend-item">
                         <div style="width: 20px; height: 20px; border: 2px solid #e74c3c; border-radius: 50%; background-color: rgba(231, 76, 60, 0.2); box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);"></div>
                         <span style="color: #ccc; font-size: 13px; font-weight: 600;">Đích đến</span>
                     </div>
-
-                    <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                    <div class="legend-item">
                         <div style="width: 20px; height: 20px; background-color: #3498db; border-radius: 50%; opacity: 0.8;"></div>
                         <span style="color: #ccc; font-size: 13px; font-weight: 600;">Đang duyệt</span>
                     </div>
-
-                    <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                    <div class="legend-item">
                         <div style="width: 20px; height: 20px; background-color: #f1c40f; border-radius: 50%; box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);"></div>
                         <span style="color: #ccc; font-size: 13px; font-weight: 600;">Đường đi tìm được</span>
                     </div>
-
                 </div>
 
-                <div class="graph-editor-layout" style="display: flex; gap: 15px;">
-                
-                    <div class="edge-list-sidebar" style="flex: 2; display: flex; flex-direction: column;">
+                <div class="graph-editor-layout">
+                    <div class="edge-list-sidebar" style="flex: 2;">
                         <div style="background: #252526; padding: 12px; border: 1px solid #333; border-radius: 8px; flex: 1; display: flex; flex-direction: column;">
                             <label style="color: #ccc; font-size: 13px; font-weight: bold; margin-bottom: 8px;"> Danh sách cạnh</label>
                             
@@ -135,12 +125,11 @@
                     <div id="graph-container" class="graph-container" style="flex: 8; margin-top: 0;">
                         <svg id="edges-svg" class="edges-svg"></svg>
                     </div>
-
                 </div>
             </div>
 
             <div id="code_editor" class="tab-content">
-                <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <header style="margin-bottom: 5px;">
                     <h2><i class="fa-solid fa-laptop"></i> Code Editor</h2>
                     <div class="actions">
                         <select id="lang-select" class="custom-select" onchange="changeLanguage()">
@@ -154,9 +143,8 @@
                     </div>
                 </header>
                 
-                <div class="ide-container" style="display: flex; height: 85vh; width: 100%;">
-                    
-                    <div id="main-editor-col" class="editor-section" style="width: 60%; display: flex; flex-direction: column; overflow: hidden;">
+                <div class="ide-container">
+                    <div id="main-editor-col" class="editor-section" style="width: 60%;">
                         <div style="background: #252526; padding: 10px 15px; border: 1px solid #444; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
                             <span id="file-name" style="color: #cccccc; font-size: 13px; font-weight: bold;">Main.cpp</span>
                             <span id="lang-label" style="color: #cccccc; font-size: 13px; font-weight: bold;">C++</span>
@@ -166,24 +154,22 @@
 
                     <div class="resizer" id="resizer-ide-v"></div>
 
-                    <div id="io-col" class="io-section" style="width: 40%; display: flex; flex-direction: column; overflow: hidden;">
-                        
-                        <div id="input-row" class="input-area" style="height: 50%; display: flex; flex-direction: column; overflow: hidden;">
+                    <div id="io-col" class="io-section" style="width: 40%;">
+                        <div id="input-row" class="input-area" style="height: 50%;">
                             <div style="background: #252526; padding: 10px 15px; border: 1px solid #444; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
                                 <span style="color: #cccccc; font-size: 13px; font-weight: bold;">Input</span>
                             </div>
                             <textarea id="user-input" placeholder="Nhập input cho chương trình vào đây..." style="flex: 1; background: #1e1e1e; color: #fff; border: 1px solid #444; padding: 10px; resize: none; font-family: 'Consolas', monospace; outline: none;"></textarea>
                         </div>
 
-                        <div class="resizer" id="resizer-ide-h"></div>
+                        <div class="resizer-h" id="resizer-ide-h"></div>
 
-                        <div id="output-row" class="output-area" style="height: 50%; display: flex; flex-direction: column; overflow: hidden;">
+                        <div id="output-row" class="output-area" style="height: 50%;">
                             <div style="background: #252526; padding: 10px 15px; border: 1px solid #444; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
                                 <span style="color: #cccccc; font-size: 13px; font-weight: bold;">Output</span>
                             </div>
                             <pre id="output-console" style="flex: 1; background: #1e1e1e; color: #fff; border: 1px solid #444; padding: 10px; overflow-y: auto; font-family: 'Consolas', monospace; margin: 0; outline: none;">Nhấn nút Run để hiển thị kết quả...</pre>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -191,7 +177,7 @@
             <div id="test-gen" class="tab-content">
                 <div style="display: flex; flex-direction: column; height: calc(100vh - 40px);">
                     
-                    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <header style="margin-bottom: 15px;">
                         <h2><i class="fa-solid fa-bug"></i> Test Generator</h2>
                         <div class="actions" style="display: flex; gap: 15px; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -211,9 +197,9 @@
 
                     <div style="flex: 1; display: flex; flex-direction: column; border: 1px solid #444; border-radius: 8px; overflow: hidden; background: #1e1e1e;">
                         
-                        <div id="stress-editors-row" class="stress-editors-container" style="display: flex; height: 70%; width: 100%;">
+                        <div id="stress-editors-row" class="stress-editors-container">
                             
-                            <div id="col-gen" style="width: 33.33%; display: flex; flex-direction: column; overflow: hidden;">
+                            <div id="col-gen" class="editor-section" style="width: 33.33%;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: #e2a0ff; font-size: 13px; font-weight: bold;"> Generator</span>
                                     <select id="lang-gen" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('gen')">
@@ -227,7 +213,7 @@
 
                             <div class="resizer" id="resizer-1"></div>
 
-                            <div id="col-brute" style="width: 33.33%; display: flex; flex-direction: column; overflow: hidden;">
+                            <div id="col-brute" class="editor-section" style="width: 33.33%;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: #2ecc71; font-size: 13px; font-weight: bold;"> Brute-force</span>
                                     <select id="lang-brute" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('brute')">
@@ -241,7 +227,7 @@
 
                             <div class="resizer" id="resizer-2"></div>
 
-                            <div id="col-opt" style="width: 33.33%; display: flex; flex-direction: column; overflow: hidden;">
+                            <div id="col-opt" class="editor-section" style="width: 33.33%;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: yellow; font-size: 13px; font-weight: bold;"> Optimized</span>
                                     <select id="lang-opt" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('opt')">
@@ -257,7 +243,7 @@
 
                         <div class="resizer-h" id="resizer-test-h"></div>
 
-                        <div id="stress-console-row" class="stress-output-container" style="height: 30%; display: flex; flex-direction: column; border-top: 1px solid #444; overflow: hidden;">
+                        <div id="stress-console-row" class="stress-output-container">
                             <div style="background: #252526; padding: 8px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between;">
                                 <span style="color: cyan; font-size: 13px; font-weight: bold;"> Console</span>
                             </div>
@@ -271,7 +257,7 @@
         </main>
     </div>
 
-	<div id="error-modal" class="modal-overlay">
+    <div id="error-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="color: #e74c3c; display: flex; align-items: center; gap: 10px;">
@@ -286,7 +272,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
-
     <script src="js/main.js"></script>
     <script src="js/visualizer.js"></script>
     <script src="js/editor.js"></script>

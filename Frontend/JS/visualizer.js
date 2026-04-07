@@ -322,7 +322,7 @@ function buildGraphFromEdgeList() {
         if (parts.length >= 2) {
             let u = parts[0];
             let v = parts[1];
-            // 5. Đọc tham số thứ 3 (trọng số), nếu không có thì mặc định là 1
+            // Đọc tham số thứ 3 (trọng số), nếu không có thì mặc định là 1
             let w = parts.length >= 3 ? parseFloat(parts[2]) : 1; 
             
             edgesToBuild.push([u, v, w]);
@@ -338,15 +338,13 @@ function buildGraphFromEdgeList() {
     clearGraph();
 
     let w = container.clientWidth || 800, h = container.clientHeight || 550;
-    let cx = w / 2, cy = h / 2, r = Math.min(cx, cy) - 60; 
-    
-    const nodesArray = Array.from(uniqueNodes);
-    const angleStep = (2 * Math.PI) / nodesArray.length; 
     let nodeMap = {}; 
 
-    nodesArray.forEach((nodeName, index) => {
-        let x = cx + r * Math.cos(index * angleStep);
-        let y = cy + r * Math.sin(index * angleStep);
+    // LƯỢC BỎ: Code tính toán tọa độ Đa giác đều
+    // THAY BẰNG: Sinh tọa độ Random ngẫu nhiên trong khung (trừ đi 40px lề để không bị sát viền)
+    Array.from(uniqueNodes).forEach((nodeName) => {
+        let x = Math.random() * (w - 80) + 40;
+        let y = Math.random() * (h - 80) + 40;
         
         let type = 'normal';
         if (nodeName === startInput) type = 'start';
