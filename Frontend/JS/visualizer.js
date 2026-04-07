@@ -14,7 +14,7 @@ function clearGraph() {
     draggingNodeId = null;
 }
 
-window.onload = clearGraph;
+document.addEventListener('DOMContentLoaded', clearGraph);
 
 function addNode(x, y, type = 'normal', customLabel = null) {
     const id = nodeIdCounter++;

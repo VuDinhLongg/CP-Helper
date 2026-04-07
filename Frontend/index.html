@@ -199,17 +199,21 @@
                                 <input type="number" id="test-count" value="100" min="1" max="10000" style="background: #1e1e1e; color: #fff; border: 1px solid #444; padding: 8px 10px; width: 80px; border-radius: 4px; outline: none; font-family: 'Consolas', monospace;">
                             </div>
                             
-                            <button id="btnRun" class="btn btn-primary" onclick="runCode()" style="background-color: green; color: white; padding: 8px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                                <i class="fa-solid fa-play"></i> Run
+                            <button id="btnRunStress" class="btn btn-primary" onclick="runStressTest()" style="background-color: green; color: white; padding: 8px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                                <i class="fa-solid fa-play"></i> Run Stress Test
+                            </button>
+
+                            <button id="btnStopStress" class="btn" onclick="stopStressTest()" style="background-color: #e74c3c; color: white; padding: 8px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; display: none;">
+                                <i class="fa-solid fa-stop"></i> Stop
                             </button>
                         </div>
                     </header>
 
                     <div style="flex: 1; display: flex; flex-direction: column; border: 1px solid #444; border-radius: 8px; overflow: hidden; background: #1e1e1e;">
                         
-                        <div class="stress-editors-container" style="display: flex; flex: 7; width: 100%;">
+                        <div id="stress-editors-row" class="stress-editors-container" style="display: flex; height: 70%; width: 100%;">
                             
-                            <div id="col-gen" style="width: 33.33%; display: flex; flex-direction: column;">
+                            <div id="col-gen" style="width: 33.33%; display: flex; flex-direction: column; overflow: hidden;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: #e2a0ff; font-size: 13px; font-weight: bold;"> Generator</span>
                                     <select id="lang-gen" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('gen')">
@@ -223,7 +227,7 @@
 
                             <div class="resizer" id="resizer-1"></div>
 
-                            <div id="col-brute" style="width: 33.33%; display: flex; flex-direction: column;">
+                            <div id="col-brute" style="width: 33.33%; display: flex; flex-direction: column; overflow: hidden;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: #2ecc71; font-size: 13px; font-weight: bold;"> Brute-force</span>
                                     <select id="lang-brute" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('brute')">
@@ -237,7 +241,7 @@
 
                             <div class="resizer" id="resizer-2"></div>
 
-                            <div id="col-opt" style="width: 33.33%; display: flex; flex-direction: column;">
+                            <div id="col-opt" style="width: 33.33%; display: flex; flex-direction: column; overflow: hidden;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: yellow; font-size: 13px; font-weight: bold;"> Optimized</span>
                                     <select id="lang-opt" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('opt')">
@@ -251,7 +255,9 @@
 
                         </div>
 
-                        <div class="stress-output-container" style="flex: 3; display: flex; flex-direction: column; border-top: 1px solid #444;">
+                        <div class="resizer-h" id="resizer-test-h"></div>
+
+                        <div id="stress-console-row" class="stress-output-container" style="height: 30%; display: flex; flex-direction: column; border-top: 1px solid #444; overflow: hidden;">
                             <div style="background: #252526; padding: 8px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between;">
                                 <span style="color: cyan; font-size: 13px; font-weight: bold;"> Console</span>
                             </div>
@@ -269,7 +275,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="color: #e74c3c; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Lỗi Biên Dịch / Thực Thi
+                    <i class="fa-solid fa-triangle-exclamation"></i> Lỗi Biên Dịch
                 </h3>
                 <button class="close-btn" onclick="closeErrorModal()">&times;</button>
             </div>
