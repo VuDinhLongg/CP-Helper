@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CP Helper</title>
-
     <link rel="icon" type="image/png" href="https://cdn.iconscout.com/icon/free/png-256/codeforces-3521352-2944796.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -50,12 +50,11 @@
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <h2><i class="fa-brands fa-slack"></i> Algo Visualizer</h2>
                         
-                        <select id="algo-select" class="custom-select" style="font-weight: bold; width: 95px;" 
+                        <select id="algo-select" class="custom-select" style="font-weight: bold; width: 100px;" 
                             onfocus="this.style.width='auto'; this.options[0].text='Tìm kiếm theo chiều rộng (BFS)'; this.options[1].text='Tìm kiếm theo chiều sâu (DFS)'; this.options[2].text='Tìm đường đi ngắn nhất (Dijkstra)';" 
-                            onblur="this.style.width='auto'; this.options[0].text='BFS'; this.options[1].text='DFS'; this.options[2].text='Dijkstra';" 
-                            onchange="this.blur()"
-                            onmousedown="this.isClicked = false;"
-                            onclick="if(this.isClicked) { this.blur(); } else { this.isClicked = true; }">
+                            onblur="this.style.width='auto'; this.options[0].text='BFS'; this.options[1].text='DFS'; this.options[2].text='Dijkstra'; this.dataset.open='false';" 
+                            onchange="this.dataset.changed='true'; this.blur();"
+                            onclick="if(this.dataset.changed === 'true') { this.dataset.changed='false'; return; } if(this.dataset.open === 'true') { this.blur(); } else { this.dataset.open = 'true'; }">
                             <option value="bfs">BFS</option>
                             <option value="dfs">DFS</option>
                             <option value="dijkstra">Dijkstra</option>
@@ -73,10 +72,10 @@
                         <button class="btn btn-primary" onclick="startAlgorithm()" style="background-color: green; margin: 0;">Chạy thuật toán</button>
                         
                         <div style="display: flex; flex-direction: column; border-radius: 6px; overflow: hidden; border: 1px solid #333;">
-                            <button class="btn" onclick="clearGraph()" style="background-color: #7f8c8f; color: white; border-radius: 0; margin: 0; padding: 5px 12px; font-size: 12px; border-bottom: 1px solid #333;">
+                            <button class="btn" onclick="clearGraph()" style="background-color: brown; color: white; border-radius: 0; margin: 0; padding: 5px 12px; font-size: 12px; border-bottom: 1px solid #333;">
                                 Xóa toàn bộ đồ thị
                             </button>
-                            <button class="btn" onclick="clearPaths()" style="background-color: brown; color: white; border-radius: 0; margin: 0; padding: 5px 12px; font-size: 12px;">
+                            <button class="btn" onclick="clearPaths()" style="background-color: #7f8c8f; color: white; border-radius: 0; margin: 0; padding: 5px 12px; font-size: 12px;">
                                 Xóa màu duyệt
                             </button>
                         </div>
@@ -155,27 +154,30 @@
                     </div>
                 </header>
                 
-                <div class="ide-container" style="display: flex; height: 85vh;">
-                    <div class="editor-section" style="flex: 6; display: flex; flex-direction: column;">
-                        
+                <div class="ide-container" style="display: flex; height: 85vh; width: 100%;">
+                    
+                    <div id="main-editor-col" class="editor-section" style="width: 60%; display: flex; flex-direction: column; overflow: hidden;">
                         <div style="background: #252526; padding: 10px 15px; border: 1px solid #444; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
                             <span id="file-name" style="color: #cccccc; font-size: 13px; font-weight: bold;">Main.cpp</span>
                             <span id="lang-label" style="color: #cccccc; font-size: 13px; font-weight: bold;">C++</span>
                         </div>
-                        
                         <div id="monaco-editor" style="flex: 1; border: 1px solid #444;"></div>
                     </div>
 
-                    <div class="io-section" style="flex: 4; display: flex; flex-direction: column;">
+                    <div class="resizer" id="resizer-ide-v"></div>
+
+                    <div id="io-col" class="io-section" style="width: 40%; display: flex; flex-direction: column; overflow: hidden;">
                         
-                        <div class="input-area" style="flex: 1; display: flex; flex-direction: column;">
+                        <div id="input-row" class="input-area" style="height: 50%; display: flex; flex-direction: column; overflow: hidden;">
                             <div style="background: #252526; padding: 10px 15px; border: 1px solid #444; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
                                 <span style="color: #cccccc; font-size: 13px; font-weight: bold;">Input</span>
                             </div>
                             <textarea id="user-input" placeholder="Nhập input cho chương trình vào đây..." style="flex: 1; background: #1e1e1e; color: #fff; border: 1px solid #444; padding: 10px; resize: none; font-family: 'Consolas', monospace; outline: none;"></textarea>
                         </div>
 
-                        <div class="output-area" style="flex: 1; display: flex; flex-direction: column;">
+                        <div class="resizer" id="resizer-ide-h"></div>
+
+                        <div id="output-row" class="output-area" style="height: 50%; display: flex; flex-direction: column; overflow: hidden;">
                             <div style="background: #252526; padding: 10px 15px; border: 1px solid #444; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
                                 <span style="color: #cccccc; font-size: 13px; font-weight: bold;">Output</span>
                             </div>
@@ -205,9 +207,9 @@
 
                     <div style="flex: 1; display: flex; flex-direction: column; border: 1px solid #444; border-radius: 8px; overflow: hidden; background: #1e1e1e;">
                         
-                        <div class="stress-editors-container" style="display: flex; flex: 7;">
+                        <div class="stress-editors-container" style="display: flex; flex: 7; width: 100%;">
                             
-                            <div style="flex: 1; display: flex; flex-direction: column; border-right: 1px solid #444;">
+                            <div id="col-gen" style="width: 33.33%; display: flex; flex-direction: column;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: #e2a0ff; font-size: 13px; font-weight: bold;"> Generator</span>
                                     <select id="lang-gen" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('gen')">
@@ -219,7 +221,9 @@
                                 <div id="editor-gen" style="flex: 1; padding: 10px;"></div>
                             </div>
 
-                            <div style="flex: 1; display: flex; flex-direction: column; border-right: 1px solid #444;">
+                            <div class="resizer" id="resizer-1"></div>
+
+                            <div id="col-brute" style="width: 33.33%; display: flex; flex-direction: column;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: #2ecc71; font-size: 13px; font-weight: bold;"> Brute-force</span>
                                     <select id="lang-brute" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('brute')">
@@ -231,7 +235,9 @@
                                 <div id="editor-brute" style="flex: 1; padding: 10px;"></div>
                             </div>
 
-                            <div style="flex: 1; display: flex; flex-direction: column;">
+                            <div class="resizer" id="resizer-2"></div>
+
+                            <div id="col-opt" style="width: 33.33%; display: flex; flex-direction: column;">
                                 <div style="background: #252526; padding: 6px 12px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: yellow; font-size: 13px; font-weight: bold;"> Optimized</span>
                                     <select id="lang-opt" class="custom-select" style="padding: 2px 6px; font-size: 11px; width: auto;" onchange="changeTestLang('opt')">
@@ -257,6 +263,20 @@
             </div>
 
         </main>
+    </div>
+
+	<div id="error-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #e74c3c; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Lỗi Biên Dịch / Thực Thi
+                </h3>
+                <button class="close-btn" onclick="closeErrorModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="modal-error-text"></pre>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>

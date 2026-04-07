@@ -1,7 +1,4 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-body { background-color: #3e3d32; color: white; height: 100vh; overflow: hidden; }
-
+/* 1. Biến cục bộ & Reset */
 :root {
     --bg-main: #3e3d32;
     --bg-sidebar: #222222;
@@ -11,210 +8,328 @@ body { background-color: #3e3d32; color: white; height: 100vh; overflow: hidden;
     --accent-yellow: #FFD700;
 }
 
-.app-container { display: flex; height: 100%; }
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Inter', sans-serif; 
+}
+
+body { 
+    background-color: var(--bg-main); 
+    color: var(--text-primary); 
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+/* 2. Layout Chính */
+.app-container { 
+    display: flex; 
+    height: 100%; 
+}
+
+.content { 
+    flex: 1; 
+    background-color: var(--bg-content); 
+    padding: 20px; 
+    overflow-y: auto; 
+}
+
+header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 20px; 
+    padding-bottom: 10px; 
+    border-bottom: 1px solid #333; 
+}
+
+/* 3. Sidebar & Menu Navigation */
+.sidebar { 
+    width: 250px; 
+    transition: width 0.5s ease; 
+    overflow: hidden; 
+    background-color: var(--bg-sidebar); 
+    white-space: nowrap; 
+    padding: 8px; 
+}
+
+.sidebar.collapsed { 
+    width: 85px; 
+}
+
+.logo-container { 
+    display: flex; 
+    align-items: center; 
+    padding: 15px; 
+    gap: 15px; 
+}
 
 .logo { 
     font-size: 36px; 
     font-weight: bold; 
-    color: yellow; 
+    color: var(--accent-yellow); 
     margin-bottom: 36px; 
 }
 
-.sidebar {
-    width: 250px;
-    transition: width 0.5s ease;
-    overflow: hidden;
-    background-color: var(--bg-sidebar);
-    white-space: nowrap;
-    padding: 8px;
-}
-
-.sidebar.collapsed {
-    width: 85px;
-}
-
-.logo-container {
+.menu-item { 
     display: flex; 
     align-items: center; 
-    padding: 15px 15px;
-    gap: 15px;
-}
-
-.menu-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
+    padding: 12px 15px; 
     margin: 8px 10px; 
-    border-radius: 16px;
-    color: #ccc;
-    text-decoration: none;
-    gap: 16px;
-    transition: background-color 0.2s ease;
+    border-radius: 16px; 
+    color: var(--text-muted); 
+    text-decoration: none; 
+    gap: 16px; 
+    transition: background-color 0.2s ease; 
 }
 
-.menu-item.active, .menu-item:hover {
-    background-color: #333333; 
-    color: white;
+.menu-item.active, 
+.menu-item:hover { 
+    background-color: #333; 
+    color: white; 
 }
 
-.sidebar.collapsed .menu-text,
-.sidebar.collapsed .brand-wrapper {
-    opacity: 0;
-    width: 0;             
-    overflow: hidden;     
-    pointer-events: none;
+.sidebar.collapsed .menu-text, 
+.sidebar.collapsed .brand-wrapper { 
+    opacity: 0; 
+    width: 0; 
+    overflow: hidden; 
+    pointer-events: none; 
 }
 
-.content { flex: 1; background-color: #1e1e1e; padding: 20px; overflow-y: auto; }
-
-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #333;
+.tab-content { 
+    display: none; 
 }
 
-.btn {
-    padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;
-}
-.btn-primary { background-color: #007acc; color: white; margin-left: 10px; }
-.btn-secondary { background-color: #3e3e42; color: white; margin-left: 10px; }
-
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.3s; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.node {
-    width: 25px;
-    height: 25px;
-    background-color: #1e1e1e;
-    cursor: pointer;
-    transition: all 0.2s;
+.tab-content.active { 
+    display: block; 
+    animation: fadeIn 0.3s; 
 }
 
-.node:hover {
-    background-color: #444;
+@keyframes fadeIn { 
+    from { opacity: 0; } 
+    to { opacity: 1; } 
 }
 
-.node.wall {
-    background-color: #7f8c8d;
-    animation: pop 0.3s ease-out;
+/* 4. UI Components (Buttons & Selects) */
+.btn { 
+    padding: 8px 16px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: 600; 
 }
 
-.node.start {
-    background-color: #2ecc71;
+.btn-primary { 
+    background-color: #007acc; 
+    color: white; 
+    margin-left: 10px; 
 }
 
-.node.target {
-    background-color: #e74c3c;
+.btn-secondary { 
+    background-color: #3e3e42; 
+    color: white; 
+    margin-left: 10px; 
 }
 
-@keyframes pop {
-    0% { transform: scale(0.5); }
-    100% { transform: scale(1); }
-}
-
-.custom-select {
-    background-color: #252526;
-    color: #e0e0e0;
-    border: 1px solid #444;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s;
-}
-
-.custom-select:focus {
-    border-color: #007acc;
-}
-
-.custom-select option {
-    background-color: #1e1e1e;
-    color: #fff;
-    padding: 10px;
-}
-
-/* --- GIAO DIỆN KHUNG VẼ ĐỒ THỊ --- */
-.graph-container {
-    position: relative;
-    width: 100%;
-    height: 550px; /* Chiều cao khung vẽ */
+.custom-select { 
     background-color: #252526; 
-    border: 2px solid #333;
-    border-radius: 8px;
-    overflow: hidden;
-    user-select: none;
+    color: #e0e0e0; 
+    border: 1px solid #444; 
+    padding: 8px 12px; 
+    border-radius: 8px; 
+    font-size: 14px; 
+    outline: none; 
+    cursor: pointer; 
+    transition: border-color 0.2s; 
 }
 
-/* Lớp SVG dùng để vẽ các đường thẳng nối đỉnh */
-.edges-svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Xuyên qua SVG để bấm được vào Đỉnh ở dưới */
+.custom-select:focus { 
+    border-color: #007acc; 
 }
 
-.edge-line {
-    stroke: #7f8c8d; /* Màu xám cho cạnh */
-    stroke-width: 4;
-    transition: stroke 0.3s;
+.custom-select option { 
+    background-color: #1e1e1e; 
+    color: #fff; 
+    padding: 10px; 
 }
 
-/* --- GIAO DIỆN CÁC ĐỈNH (VERTEX) --- */
-.vertex {
-    position: absolute;
-    width: 36px;
-    height: 36px;
-    background-color: #1e1e1e;
-    border: 3px solid #007acc; /* Viền xanh dương */
-    border-radius: 50%; /* Hình tròn */
-    transform: translate(-50%, -50%); /* Căn giữa tâm điểm chuột */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: grab;
-    transition: background-color 0.2s, box-shadow 0.2s;
-    z-index: 10; /* Đỉnh luôn nằm đè lên Cạnh */
+/* 5. Khung vẽ Đồ thị & Cạnh */
+.graph-container { 
+    position: relative; 
+    width: 100%; 
+    height: 550px; 
+    background-color: #252526; 
+    border: 2px solid #333; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    user-select: none; 
 }
 
-.vertex:active { cursor: grabbing; }
-
-.vertex:hover {
-    background-color: #333;
-    box-shadow: 0 0 10px rgba(0, 122, 204, 0.8);
+.edges-svg { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    pointer-events: none; 
 }
 
-/* Đỉnh xuất phát (Xanh) và Đích (Đỏ) */
-.vertex.start { border-color: #2ecc71; background-color: rgba(46, 204, 113, 0.2); }
-.vertex.target { border-color: #e74c3c; background-color: rgba(231, 76, 60, 0.2); }
-
-/* --- HIỆU ỨNG TÔ MÀU (ANIMATION) --- */
-.vertex.visited {
-    animation: visitedVertex 1.5s ease-out forwards;
-}
-@keyframes visitedVertex {
-    0% { transform: translate(-50%, -50%) scale(0.5); background-color: rgba(0, 0, 66, 0.8); }
-    50% { background-color: rgba(17, 104, 217, 0.8); }
-    100% { transform: translate(-50%, -50%) scale(1); background-color: #3498db; border-color: #fff; }
+.edge-line { 
+    stroke: #7f8c8d; 
+    stroke-width: 4; 
+    transition: stroke 0.3s; 
 }
 
-.vertex.path {
-    animation: pathVertex 0.5s ease-out forwards;
-}
-@keyframes pathVertex {
-    0% { transform: translate(-50%, -50%) scale(0.8); background-color: #f1c40f; }
-    100% { transform: translate(-50%, -50%) scale(1); background-color: #f1c40f; border-color: #fff; box-shadow: 0 0 15px #f1c40f;}
+.edge-line.path { 
+    stroke: #f1c40f; 
+    stroke-width: 6; 
 }
 
-/* Đường thẳng đường đi ngắn nhất (Màu vàng) */
-.edge-line.path {
-    stroke: #f1c40f;
-    stroke-width: 6;
+/* 6. Các Đỉnh (Vertex) */
+.vertex { 
+    position: absolute; 
+    width: 36px; 
+    height: 36px; 
+    background-color: #1e1e1e; 
+    border: 3px solid #007acc; 
+    border-radius: 50%; 
+    transform: translate(-50%, -50%); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    color: white; 
+    font-weight: bold; 
+    font-size: 13px; 
+    cursor: grab; 
+    transition: background-color 0.2s, box-shadow 0.2s; 
+    z-index: 10; 
+}
+
+.vertex:active { 
+    cursor: grabbing; 
+}
+
+.vertex:hover { 
+    background-color: #333; 
+    box-shadow: 0 0 10px rgba(0, 122, 204, 0.8); 
+}
+
+.vertex.start { 
+    border-color: #2ecc71; 
+    background-color: rgba(46, 204, 113, 0.2); 
+}
+
+.vertex.target { 
+    border-color: #e74c3c; 
+    background-color: rgba(231, 76, 60, 0.2); 
+}
+
+/* 7. Hiệu ứng tô màu (Animations) */
+.vertex.visited { 
+    animation: visitedVertex 1.5s ease-out forwards; 
+}
+
+@keyframes visitedVertex { 
+    0% { 
+        transform: translate(-50%, -50%) scale(0.5); 
+        background-color: rgba(0, 0, 66, 0.8); 
+    } 
+    50% { 
+        background-color: rgba(17, 104, 217, 0.8); 
+    } 
+    100% { 
+        transform: translate(-50%, -50%) scale(1); 
+        background-color: #3498db; 
+        border-color: #fff; 
+    } 
+}
+
+.vertex.path { 
+    animation: pathVertex 0.5s ease-out forwards; 
+}
+
+@keyframes pathVertex { 
+    0% { 
+        transform: translate(-50%, -50%) scale(0.8); 
+        background-color: #f1c40f; 
+    } 
+    100% { 
+        transform: translate(-50%, -50%) scale(1); 
+        background-color: #f1c40f; 
+        border-color: #fff; 
+        box-shadow: 0 0 15px #f1c40f;
+    } 
+}
+
+/* 8. Modal Báo Lỗi (Pop-up) */
+.modal-overlay { 
+    display: none; /* Mặc định giấu đi */
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%; 
+    background-color: rgba(0, 0, 0, 0.7); 
+    z-index: 9999; 
+    justify-content: center; 
+    align-items: center; 
+    animation: fadeIn 0.2s; 
+}
+
+.modal-content { 
+    background-color: #1e1e1e; 
+    border: 1px solid #444; 
+    border-radius: 8px; 
+    width: 80%; 
+    max-width: 900px; 
+    max-height: 80vh; 
+    display: flex; 
+    flex-direction: column; 
+    box-shadow: 0 5px 25px rgba(0,0,0,0.8); 
+}
+
+.modal-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 15px 20px; 
+    border-bottom: 1px solid #333; 
+    background-color: #252526; 
+    border-radius: 8px 8px 0 0; 
+}
+
+.close-btn { 
+    background: none; 
+    border: none; 
+    color: #ccc; 
+    font-size: 28px; 
+    cursor: pointer; 
+    transition: color 0.2s;
+}
+
+.close-btn:hover { color: #e74c3c; }
+
+.modal-body { 
+    padding: 20px; 
+    overflow-y: auto; 
+}
+
+#modal-error-text { 
+    color: #e74c3c; 
+    font-family: 'Consolas', monospace; 
+    font-size: 15px; 
+    white-space: pre-wrap; /* Tự động xuống dòng nếu code quá dài */
+}
+
+/* 9. Resizer (Thanh kéo thả chia cột/hàng) */
+.resizer { 
+    width: 4px; 
+    background-color: #444; 
+    cursor: col-resize; 
+    transition: background-color 0.2s; 
+    z-index: 10; 
+}
+
+.resizer:hover, 
+.resizer.resizing { 
+    background-color: #007acc; 
 }

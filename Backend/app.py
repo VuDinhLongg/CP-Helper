@@ -5,7 +5,6 @@ import os
 import tempfile
 
 app = Flask(__name__)
-# Cho phép Frontend ở cổng 5500 gọi sang Backend ở cổng 5000 thoải mái
 CORS(app)
 
 @app.route('/run', methods=['POST'])
@@ -15,7 +14,6 @@ def run_code():
     code = data.get('code')
     user_input = data.get('input', '')
 
-    # Tạo một thư mục ảo ảo, chạy xong sẽ tự động bốc hơi không để lại rác
     with tempfile.TemporaryDirectory() as temp_dir:
         try:
             if lang == 'python':
@@ -23,7 +21,6 @@ def run_code():
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(code)
                 
-                # Chạy Python
                 process = subprocess.run(
                     ['python', file_path],
                     input=user_input, text=True, capture_output=True, timeout=5
@@ -36,16 +33,14 @@ def run_code():
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(code)
 
-                # 1. Biên dịch C++
                 compile_process = subprocess.run(
                     ['g++', file_path, '-o', exe_path],
                     text=True, capture_output=True
                 )
                 
-                if compile_process.returncode != 0: # Dính Compile Error
+                if compile_process.returncode != 0:
                     return jsonify({'stdout': '', 'stderr': compile_process.stderr, 'code': compile_process.returncode})
 
-                # 2. Chạy file .exe
                 run_process = subprocess.run(
                     [exe_path],
                     input=user_input, text=True, capture_output=True, timeout=5
@@ -57,7 +52,6 @@ def run_code():
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(code)
 
-                # 1. Biên dịch Java
                 compile_process = subprocess.run(
                     ['javac', file_path],
                     text=True, capture_output=True
@@ -66,7 +60,6 @@ def run_code():
                 if compile_process.returncode != 0:
                     return jsonify({'stdout': '', 'stderr': compile_process.stderr, 'code': compile_process.returncode})
 
-                # 2. Chạy class Java
                 run_process = subprocess.run(
                     ['java', '-cp', temp_dir, 'Main'],
                     input=user_input, text=True, capture_output=True, timeout=5
@@ -76,12 +69,10 @@ def run_code():
             else:
                 return jsonify({'stdout': '', 'stderr': 'Ngôn ngữ chưa được hỗ trợ!', 'code': 1})
 
-        # Bắt lỗi vòng lặp vô hạn (Time Limit Exceeded)
         except subprocess.TimeoutExpired:
             return jsonify({'stdout': '', 'stderr': 'Time Limit Exceeded (Quá 5 giây)!', 'code': 124})
         except Exception as e:
             return jsonify({'stdout': '', 'stderr': f'Lỗi server: {str(e)}', 'code': 1})
 
 if __name__ == '__main__':
-    # Server chạy ở cổng 5000
     app.run(debug=True, port=5000)
