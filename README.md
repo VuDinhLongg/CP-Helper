@@ -24,7 +24,7 @@ Một nền tảng web đa nhiệm được xây dựng nhằm hỗ trợ cộng
 * **Thư viện bên thứ ba:** [Monaco Editor](https://microsoft.github.io/monaco-editor/) (via CDN).
 * **API (Dự kiến):** Piston API (Thực thi mã nguồn từ xa).
 
-## 🚀 Hướng dẫn cài đặt & Sử dụng
+## Hướng dẫn cài đặt & Sử dụng
 Dự án được phát triển hoàn toàn thuần Frontend, không yêu cầu cài đặt môi trường Backend phức tạp.
 
 1. Clone repository về máy:
