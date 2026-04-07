@@ -144,7 +144,7 @@ async function runCode() {
             outputConsole.style.color = "#2ecc71"; 
         }
     } catch (error) {
-        outputConsole.textContent = "Không gọi được Backend ! Hãy chắc chắn đã chạy 'python app.py'";
+        outputConsole.textContent = "Không gọi được Backend !";
         outputConsole.style.color = "#e74c3c"; 
     } finally {
         btnRun.innerHTML = '<i class="fa-solid fa-play"></i> Run';
@@ -186,7 +186,7 @@ async function runStressTest() {
     isStressTesting = true;
     btnRun.style.display = 'none';            // Giấu nút Run
     if (btnStop) btnStop.style.display = 'inline-block'; // Hiện nút Stop
-    consoleOut.innerHTML = `<span style="color:#ccc">Bắt đầu Sinh test và Chấm đối chứng...</span><br>`;
+    consoleOut.innerHTML = `<span style="color:#ccc">Bắt đầu sinh test và Kiểm tra đầu ra...</span><br>`;
 
     let allPassed = true;
     let stoppedByUser = false;
@@ -195,7 +195,7 @@ async function runStressTest() {
         // KIỂM TRA CÔNG TẮC: Nếu user ấn Stop thì thoát vòng lặp ngay
         if (!isStressTesting) {
             stoppedByUser = true;
-            consoleOut.innerHTML += `<br><br><span style="color:#f39c12; font-size: 15px;"><b>⚠️ ĐÃ DỪNG STRESS TEST (Chạy được ${i-1}/${testCount} test).</b></span>`;
+            consoleOut.innerHTML += `<br><br><span style="color:#f39c12; font-size: 15px;"><b>ĐÃ DỪNG STRESS TEST (Chạy được ${i-1}/${testCount} test).</b></span>`;
             break;
         }
 
@@ -211,7 +211,7 @@ async function runStressTest() {
             // 2. Chạy Brute-force
             const bruteRes = await fetchBackend(bruteLang, bruteCode, testCase);
             if (bruteRes.code !== 0) {
-                consoleOut.innerHTML += `<br><span style="color:#e74c3c"><b>Lỗi ở Brute-force (Test ${i}):</b></span><br>${bruteRes.stderr}<br><br><b>Test Case gây lỗi:</b><br>${testCase}`;
+                consoleOut.innerHTML += `<br><span style="color:#e74c3c"><b>Lỗi ở code Brute-force (Test ${i}):</b></span><br>${bruteRes.stderr}<br><br><b>Test Case gây lỗi:</b><br>${testCase}`;
                 allPassed = false; break;
             }
             const expectedOut = bruteRes.stdout.trim();
@@ -219,7 +219,7 @@ async function runStressTest() {
             // 3. Chạy Optimized
             const optRes = await fetchBackend(optLang, optCode, testCase);
             if (optRes.code !== 0) {
-                consoleOut.innerHTML += `<br><span style="color:#e74c3c"><b>Lỗi ở Optimized (Test ${i}):</b></span><br>${optRes.stderr}<br><br><b>Test Case gây lỗi:</b><br>${testCase}`;
+                consoleOut.innerHTML += `<br><span style="color:#e74c3c"><b>Lỗi ở code Optimized (Test ${i}):</b></span><br>${optRes.stderr}<br><br><b>Test Case gây lỗi:</b><br>${testCase}`;
                 allPassed = false; break;
             }
             const actualOut = optRes.stdout.trim();
@@ -227,16 +227,16 @@ async function runStressTest() {
             // 4. So Sánh
             if (expectedOut !== actualOut) {
                 consoleOut.innerHTML += `
-                    <br><br><span style="color:#e74c3c; font-size: 16px;"><b>❌ WRONG ANSWER TẠI TEST ${i}</b></span><br><br>
+                    <br><br><span style="color:#e74c3c; font-size: 16px;"><b>Wrong Answer on test ${i}</b></span><br><br>
                     <span style="color:cyan"><b>[Input (Test Case)]</b></span><br><pre style="color:#fff">${testCase}</pre><br>
                     <span style="color:#2ecc71"><b>[Expected (Brute-force)]</b></span><br><pre style="color:#fff">${expectedOut}</pre><br>
-                    <span style="color:yellow"><b>[Actual (Optimized)]</b></span><br><pre style="color:#fff">${actualOut}</pre>
+                    <span style="color:yellow"><b>[Found (Optimized)]</b></span><br><pre style="color:#fff">${actualOut}</pre>
                 `;
                 allPassed = false; 
                 break; 
             } else {
                 // Tối ưu UI: Chỉ in đè 1 dòng duy nhất để Console không bị trôi tuột đi khi chạy 1000 test
-                consoleOut.innerHTML = `<span style="color:#ccc">Bắt đầu Sinh test và Chấm đối chứng...</span><br><br><span style="color:#2ecc71"><b>✅ Đang chạy... Vượt qua Test ${i} / ${testCount}</b></span>`;
+                consoleOut.innerHTML = `<span style="color:#ccc">Bắt đầu sinh test và Kiểm tra đầu ra...</span><br><br><span style="color:#2ecc71"><b>Đang chạy... đã đúng ${i} / ${testCount}</b></span>`;
             }
 
         } catch (err) {
@@ -247,7 +247,7 @@ async function runStressTest() {
     }
 
     if (allPassed && !stoppedByUser) {
-        consoleOut.innerHTML = `<span style="color:#2ecc71; font-size: 16px;"><b>🎉 THÀNH CÔNG! ĐÃ VƯỢT QUA TẤT CẢ ${testCount} TEST CASES!</b></span>`;
+        consoleOut.innerHTML = `<span style="color:#2ecc71; font-size: 16px;"><b>Accepted ! (${testCount} test cases)</b></span>`;
     }
 
     // --- TẮT CHẾ ĐỘ TESTING, TRẢ LẠI GIAO DIỆN ---
