@@ -57,7 +57,13 @@ function addEdge(u, v, w = 1) {
 
     // Tạo thẻ Text (Chữ) của SVG để hiển thị con số lên màn hình
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.textContent = w;
+    
+    // NẾU TRỌNG SỐ LÀ 1 (MẶC ĐỊNH) THÌ ẨN ĐI, KHÁC 1 THÌ MỚI HIỆN
+    text.textContent = (w === 1) ? "" : w; 
+    
+    text.setAttribute('fill', '#ffd700'); 
+    text.setAttribute('font-size', '14px');
+    text.setAttribute('font-weight', 'bold');
     text.setAttribute('fill', '#ffd700'); // Trọng số hiển thị màu vàng cho nổi bật
     text.setAttribute('font-size', '14px');
     text.setAttribute('font-weight', 'bold');
@@ -322,7 +328,6 @@ function buildGraphFromEdgeList() {
         if (parts.length >= 2) {
             let u = parts[0];
             let v = parts[1];
-            // Đọc tham số thứ 3 (trọng số), nếu không có thì mặc định là 1
             let w = parts.length >= 3 ? parseFloat(parts[2]) : 1; 
             
             edgesToBuild.push([u, v, w]);
@@ -337,14 +342,40 @@ function buildGraphFromEdgeList() {
     if (uniqueNodes.size === 0) return;
     clearGraph();
 
-    let w = container.clientWidth || 800, h = container.clientHeight || 550;
+    let w_container = container.clientWidth || 800;
+    let h_container = container.clientHeight || 550;
     let nodeMap = {}; 
 
-    // LƯỢC BỎ: Code tính toán tọa độ Đa giác đều
-    // THAY BẰNG: Sinh tọa độ Random ngẫu nhiên trong khung (trừ đi 40px lề để không bị sát viền)
-    Array.from(uniqueNodes).forEach((nodeName) => {
-        let x = Math.random() * (w - 80) + 40;
-        let y = Math.random() * (h - 80) + 40;
+    // 1. SẮP XẾP DANH SÁCH ĐỈNH TĂNG DẦN (Để đỉnh 1, 2, 3... xếp theo thứ tự)
+    let nodesArray = Array.from(uniqueNodes).sort((a, b) => {
+        let numA = parseFloat(a), numB = parseFloat(b);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a.localeCompare(b);
+    });
+
+    // 2. THUẬT TOÁN CHIA LƯỚI (GRID LAYOUT)
+    let numNodes = nodesArray.length;
+    let cols = Math.ceil(Math.sqrt(numNodes)); // Tính số cột (Lấy căn bậc 2)
+    let rows = Math.ceil(numNodes / cols);     // Tính số hàng tương ứng
+
+    // Khoảng cách lề so với viền Canvas (để đỉnh không bị dính vách)
+    let margin = 60; 
+    let availableWidth = w_container - 2 * margin;
+    let availableHeight = h_container - 2 * margin;
+
+    // Khoảng cách giữa các đỉnh (Tránh chia cho 0 nếu chỉ có 1 cột/hàng)
+    let stepX = cols > 1 ? availableWidth / (cols - 1) : availableWidth / 2;
+    let stepY = rows > 1 ? availableHeight / (rows - 1) : availableHeight / 2;
+
+    // 3. RẢI ĐỈNH LÊN LƯỚI
+    nodesArray.forEach((nodeName, index) => {
+        // Xác định vị trí hàng (r) và cột (c) của đỉnh hiện tại
+        let r = Math.floor(index / cols);
+        let c = index % cols;
+
+        // Tính toán tọa độ X, Y
+        let x = cols > 1 ? margin + c * stepX : w_container / 2;
+        let y = rows > 1 ? margin + r * stepY : h_container / 2;
         
         let type = 'normal';
         if (nodeName === startInput) type = 'start';
@@ -353,6 +384,6 @@ function buildGraphFromEdgeList() {
         nodeMap[nodeName] = addNode(x, y, type, nodeName);
     });
 
-    // Truyền w vào hàm addEdge
+    // Vẽ cạnh nối
     edgesToBuild.forEach(edge => addEdge(nodeMap[edge[0]], nodeMap[edge[1]], edge[2]));
 }
