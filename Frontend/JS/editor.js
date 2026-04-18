@@ -254,7 +254,7 @@ async function runStressTest() {
                 allPassed = false; 
                 break; 
             } else {
-                // Tối ưu UI: Chỉ in đè 1 dòng duy nhất để Console không bị trôi tuột đi khi chạy 1000 test
+                // Tối ưu UI: Chỉ in đè 1 dòng duy nhất
                 consoleOut.innerHTML = `<span style="color:#ccc">Bắt đầu sinh test và Kiểm tra đầu ra...</span><br><br><span style="color:#2ecc71"><b>Đang chạy... đã đúng ${i} / ${testCount}</b></span>`;
             }
 
