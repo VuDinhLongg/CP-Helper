@@ -226,44 +226,31 @@ async function runStressTest() {
 
             // 4. So Sánh
             if (expectedOut !== actualOut) {
-                consoleOut.innerHTML += `
-                    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #444;">
-                        
-                        <div style="color: #e74c3c; font-size: 14px; font-weight: bold; margin-bottom: 12px;">
-                            ❌ WA on test ${i}
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; align-items: start;">
-                            
-                            <div style="display: flex; flex-direction: column;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; height: 20px;">
-                                    <span style="color: #3498db; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">INPUT</span>
-                                    
-                                    <span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 2000);" 
-                                          style="color: #888; font-size: 11px; cursor: pointer; text-decoration: underline; user-select: none;">
-                                        Copy
-                                    </span>
-                                </div>
-                                <pre style="margin: 0; color: #e0e0e0; font-family: 'Consolas', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">${testCase}</pre>
-                            </div>
-
-                            <div style="display: flex; flex-direction: column;">
-                                <div style="display: flex; align-items: center; margin-bottom: 6px; height: 20px;">
-                                    <span style="color: #2ecc71; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">EXPECTED</span>
-                                </div>
-                                <pre style="margin: 0; color: #e0e0e0; font-family: 'Consolas', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">${expectedOut}</pre>
-                            </div>
-
-                            <div style="display: flex; flex-direction: column;">
-                                <div style="display: flex; align-items: center; margin-bottom: 6px; height: 20px;">
-                                    <span style="color: #f1c40f; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">FOUND</span>
-                                </div>
-                                <pre style="margin: 0; color: #e0e0e0; font-family: 'Consolas', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">${actualOut}</pre>
-                            </div>
-
-                        </div>
-                    </div>
-                `;
+                consoleOut.innerHTML += 
+                    `<div style="margin-top: 15px; font-family: 'Inter', sans-serif; text-align: left; border-top: 1px dashed #444; padding-top: 12px;">` +
+                        `<div style="font-weight: bold; margin-bottom: 8px; color: #e74c3c; font-size: 14px;">Test: #${i}, verdict: Wrong Answer</div>` +
+                        `<div style="margin-bottom: 10px;">` +
+                            `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
+                                `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Input</span>` +
+                                `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
+                            `</div>` +
+                            `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${testCase}</pre>` +
+                        `</div>` +
+                        `<div style="margin-bottom: 10px;">` +
+                            `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
+                                `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Output</span>` +
+                                `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
+                            `</div>` +
+                            `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${actualOut}</pre>` +
+                        `</div>` +
+                        `<div style="margin-bottom: 10px;">` +
+                            `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
+                                `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Answer</span>` +
+                                `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
+                            `</div>` +
+                            `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${expectedOut}</pre>` +
+                        `</div>` +
+                    `</div>`;
                 allPassed = false; 
                 break; 
             } else {
