@@ -1,32 +1,76 @@
-# CP Helper - Algorithm Visualizer & Online IDE
+# 🚀 CP Helper - Trợ thủ đắc lực cho Lập trình thi đấu
 
-Một nền tảng web đa nhiệm được xây dựng nhằm hỗ trợ cộng đồng Lập trình thi đấu (Competitive Programming) và trực quan hóa các cấu trúc dữ liệu - thuật toán cơ bản. Dự án được thực hiện trong khuôn khổ môn Thực tập cơ sở tại PTIT.
+**CP Helper** là một nền tảng Web đa nhiệm "Tất cả trong một" được thiết kế đặc biệt dành cho sinh viên IT và cộng đồng Lập trình thi đấu. Dự án giúp trực quan hóa các thuật toán đồ thị phức tạp, cung cấp môi trường soạn thảo mã nguồn chuyên nghiệp và đặc biệt là hệ thống tự động sinh test đối chứng để dò tìm lỗi logic.
 
-## Tính năng nổi bật
+Dự án được thực hiện trong khuôn khổ môn **Thực tập cơ sở** tại Học viện Công nghệ Bưu chính Viễn thông (PTIT).
 
-### 1. Trực quan hóa thuật toán (Algorithm Visualizer)
-* **Mô phỏng đồ thị:** Hỗ trợ trực quan hóa các thuật toán tìm đường phổ biến như **BFS**, **DFS** và **Dijkstra** trên ma trận lưới.
-* **Tương tác kéo thả (Drag & Drop):** Tự do thay đổi vị trí điểm Xuất phát và Đích mượt mà.
-* **Thiết lập vật cản:** Click và giữ chuột để vẽ tường (Maze), hoặc sử dụng tính năng "Tạo vật cản ngẫu nhiên" để thử thách thuật toán.
-* **Hiệu ứng Animation:** Loang màu theo từng bước duyệt thuật toán và tự động vẽ đường chỉ vàng truy vết đường đi ngắn nhất với 3 chế độ tốc độ (Nhanh, Thường, Chậm).
+---
 
-### 2. Môi trường lập trình trực tuyến (Online IDE)
-* **Trình soạn thảo chuyên nghiệp:** Tích hợp lõi **Monaco Editor** (trình soạn thảo mã nguồn của VS Code) mang lại trải nghiệm gõ code mượt mà, hỗ trợ Syntax Highlighting.
-* **Đa ngôn ngữ:** Hỗ trợ các ngôn ngữ phổ biến trong Lập trình thi đấu gồm C++, Java và Python.
-* **Dark Theme:** Giao diện tối ưu hóa cho lập trình viên, chống mỏi mắt với bố cục CSS Flexbox/Grid co giãn hoàn hảo.
+## ✨ Các tính năng cốt lõi
 
-### 3. Hệ thống kiểm thử tự động (Stress Tester) - *Đang phát triển*
-* Cung cấp không gian làm việc đa luồng với 3 trình soạn thảo độc lập: Trình sinh test (Generator), Giải pháp Brute-force và Giải pháp Tối ưu (Optimized).
-* *Sắp ra mắt: Kết nối Piston API để biên dịch và chấm chéo mã nguồn tự động.*
+### 1. 🕸️ Trực quan hóa thuật toán (Algorithm Visualizer)
+Thay vì mô phỏng trên ma trận lưới đơn điệu, phân hệ này hỗ trợ mô phỏng không gian Đồ thị Đỉnh - Cạnh chuyên sâu:
+* **Khởi tạo linh hoạt:** Dựng đồ thị trực tiếp từ **Danh sách cạnh**, hỗ trợ cả đồ thị có trọng số.
+* **Bố cục thông minh & Kéo thả:** Tự động sắp xếp các đỉnh theo dạng lưới toán học, kết hợp với độ lệch ngẫu nhiên để chống việc các cạnh đè lên nhau. Hỗ trợ thao tác kéo thả siêu mượt để người dùng tự do căn chỉnh hình dáng đồ thị.
+* **Hiệu ứng mô phỏng:** Trình diễn từng bước duyệt của thuật toán **BFS**, **DFS** và **Dijkstra** với hiệu ứng loang màu và tự động làm nổi bật đường đi ngắn nhất. Tích hợp 3 tùy chọn tốc độ (Nhanh, Thường, Chậm).
 
-## Công nghệ sử dụng
-* **Frontend:** HTML5, CSS3, Vanilla JavaScript (Không sử dụng Framework để tối ưu hiệu năng).
-* **Thư viện bên thứ ba:** [Monaco Editor](https://microsoft.github.io/monaco-editor/) (via CDN).
-* **API (Dự kiến):** Piston API (Thực thi mã nguồn từ xa).
+### 2. 💻 Môi trường lập trình trực tuyến (Online IDE)
+Môi trường gõ code chuyên nghiệp ngay trên trình duyệt mà không cần cài đặt phần mềm:
+* **Trình soạn thảo mạnh mẽ:** Tích hợp lõi soạn thảo của Visual Studio Code (Monaco Editor), mang lại trải nghiệm gõ phím đỉnh cao, tự động tô màu cú pháp cho **C++, Java, Python**.
+* **Giao diện co giãn tự do:** Hệ thống vách ngăn cho phép người dùng tự do kéo thả để thay đổi tỷ lệ diện tích giữa khung gõ Mã nguồn, Dữ liệu vào (Input) và Dữ liệu ra (Output).
+* **Xử lý lỗi thông minh:** Hệ thống bắt lỗi biên dịch và hiển thị thông qua Cửa sổ nổi (Pop-up) rộng rãi, tối ưu trải nghiệm người dùng thay vì in dòng chữ báo lỗi nhỏ xíu ra bảng điều khiển.
 
-## Hướng dẫn cài đặt & Sử dụng
-Dự án được phát triển hoàn toàn thuần Frontend, không yêu cầu cài đặt môi trường Backend phức tạp.
+### 3. 🐞 Hệ thống Sinh test đối chứng tự động (Stress Tester)
+"Vũ khí" tối thượng giúp bắt gọn các lỗi Tràn số nguyên hay Sai logic thuật toán:
+* **Cơ chế 3 trụ cột:** Chạy đồng thời 3 đoạn mã: `Trình sinh dữ liệu ngẫu nhiên` -> `Thuật toán trâu (chạy chậm nhưng chuẩn)` -> `Thuật toán tối ưu (cần kiểm tra)`.
+* **Luồng kiểm thử tự động:** So sánh Kết quả dự kiến và Kết quả thực tế. Tự động dừng vòng lặp và in ra chi tiết Bộ test (Test case) ngay khi phát hiện `KẾT QUẢ SAI`.
+* **An toàn & Kiểm soát:** Tích hợp nút **Dừng khẩn cấp** để ngắt luồng. Máy chủ tự động chặn các đoạn mã bị lặp vô hạn (Quá thời gian thực thi - TLE) sau 5 giây.
 
-1. Clone repository về máy:
-   ```bash
-   git clone [https://github.com/LonggVuz/cp-helper.git](https://github.com/LonggVuz/cp-helper.git)
+---
+
+## 🛠️ Kiến trúc & Công nghệ
+
+Dự án áp dụng triết lý **Mã nguồn sạch**, tách biệt rõ ràng các phân hệ và nói không với các bộ khung (Framework) thiết kế web cồng kềnh nhằm tối ưu hóa tốc độ tải trang.
+
+* **Giao diện (Frontend):**
+  * HTML5, CSS3 (Tùy chỉnh thanh cuộn, Bố cục Flexbox linh hoạt).
+  * JavaScript thuần (Xử lý logic thuật toán, Hiệu ứng chuyển động, và Kết nối API).
+  * Thư viện nhúng: Lõi Monaco Editor (qua mạng phân phối nội dung CDN), Bộ biểu tượng FontAwesome.
+* **Máy chủ thực thi cục bộ (Backend):**
+  * **Python / Flask API:** Đóng vai trò máy chủ tiếp nhận mã nguồn.
+  * **Cơ chế Hộp cát an toàn (Sandboxing):** Sử dụng các thư viện hệ thống (`subprocess` & `tempfile`) để tự động cấp phát thư mục ảo khi biên dịch mã nguồn, và dọn sạch rác bộ nhớ ngay sau khi chạy xong.
+
+---
+
+## ⚙️ Hướng dẫn Cài đặt & Chạy dự án
+
+Vì hệ thống hiện tại đã sở hữu một Máy chủ nội bộ cực kỳ mạnh mẽ để thực thi mã nguồn an toàn, bạn cần làm theo các bước sau để khởi chạy:
+
+### Yêu cầu hệ thống:
+* Đã cài đặt phần mềm **Python 3.x** trên máy.
+* Cài đặt các trình biên dịch tương ứng nếu muốn test code: `g++` (dành cho C++), `JDK` (dành cho Java).
+
+### Các bước khởi chạy:
+
+1. **Tải mã nguồn về máy (Clone):**
+    git clone https://github.com/LonggVuz/cp-helper.git
+    cd cp-helper
+
+2. **Cài đặt thư viện cho Máy chủ:**
+    Mở cửa sổ lệnh (Terminal/CMD) và chạy dòng sau để cài đặt (chỉ cần làm 1 lần):
+    pip install flask flask-cors
+
+3. **Khởi động Máy chủ Thực thi (Backend):**
+    python app.py
+    *(Đảm bảo cửa sổ lệnh thông báo Máy chủ đang chạy ở địa chỉ http://127.0.0.1:5000)*
+
+4. **Mở Giao diện Web (Frontend):**
+    Bạn có thể nhấp đúp trực tiếp vào file `index.html` để mở bằng trình duyệt web, hoặc sử dụng tiện ích **Live Server** trên VS Code để có trải nghiệm tốt nhất.
+
+---
+
+## 👨‍💻 Thành viên phát triển
+
+* **Vũ Đình Long** (B23DCAT175)
+* **Nguyễn Hữu Trường** (B23DCVT424)
+* **Đỗ Minh Tuấn** (B23DCVT436)
