@@ -17,7 +17,7 @@ require(['vs/editor/editor.main'], function () {
     });
 
     genEditor = monaco.editor.create(document.getElementById('editor-gen'), {
-        value: 'import random\n\n# Sinh ngẫu nhiên số N từ 1 đến 100\nprint(random.randint(1, 100))',
+        value: 'import random\n\n# Sinh ngẫu nhiên số N từ 1 đến 10^18\nprint(random.randint(1, 10**18))',
         language: 'python',
         theme: 'vs-dark',
         automaticLayout: true,
@@ -26,7 +26,7 @@ require(['vs/editor/editor.main'], function () {
     });
 
     bruteEditor = monaco.editor.create(document.getElementById('editor-brute'), {
-        value: '// Thuật trâu C++\n#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int n; cin >> n;\n    cout << n;\n    return 0;\n}',
+        value: '// Thuật trâu C++\n#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    long long n; cin >> n;\n    cout << n;\n    return 0;\n}',
         language: 'cpp',
         theme: 'vs-dark',
         automaticLayout: true,
@@ -227,10 +227,42 @@ async function runStressTest() {
             // 4. So Sánh
             if (expectedOut !== actualOut) {
                 consoleOut.innerHTML += `
-                    <br><br><span style="color:#e74c3c; font-size: 16px;"><b>Wrong Answer on test ${i}</b></span><br><br>
-                    <span style="color:cyan"><b>[Input (Test Case)]</b></span><br><pre style="color:#fff">${testCase}</pre><br>
-                    <span style="color:#2ecc71"><b>[Expected (Brute-force)]</b></span><br><pre style="color:#fff">${expectedOut}</pre><br>
-                    <span style="color:yellow"><b>[Found (Optimized)]</b></span><br><pre style="color:#fff">${actualOut}</pre>
+                    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #444;">
+                        
+                        <div style="color: #e74c3c; font-size: 14px; font-weight: bold; margin-bottom: 12px;">
+                            ❌ WA on test ${i}
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; align-items: start;">
+                            
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; height: 20px;">
+                                    <span style="color: #3498db; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">INPUT</span>
+                                    
+                                    <span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 2000);" 
+                                          style="color: #888; font-size: 11px; cursor: pointer; text-decoration: underline; user-select: none;">
+                                        Copy
+                                    </span>
+                                </div>
+                                <pre style="margin: 0; color: #e0e0e0; font-family: 'Consolas', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">${testCase}</pre>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="display: flex; align-items: center; margin-bottom: 6px; height: 20px;">
+                                    <span style="color: #2ecc71; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">EXPECTED</span>
+                                </div>
+                                <pre style="margin: 0; color: #e0e0e0; font-family: 'Consolas', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">${expectedOut}</pre>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="display: flex; align-items: center; margin-bottom: 6px; height: 20px;">
+                                    <span style="color: #f1c40f; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">FOUND</span>
+                                </div>
+                                <pre style="margin: 0; color: #e0e0e0; font-family: 'Consolas', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">${actualOut}</pre>
+                            </div>
+
+                        </div>
+                    </div>
                 `;
                 allPassed = false; 
                 break; 
