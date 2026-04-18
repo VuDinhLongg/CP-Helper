@@ -7,7 +7,13 @@ let isAnimating = false, draggingNodeId = null;
 
 function clearGraph() {
     if (isAnimating) return;
-    container.innerHTML = '<svg id="edges-svg" class="edges-svg"></svg>';
+    
+    // Cập nhật: Khi xóa đồ thị, phải giữ lại cả bảng Status Box và thẻ SVG
+    container.innerHTML = `
+        <div id="algo-status-box" class="algo-status-overlay"></div>
+        <svg id="edges-svg" class="edges-svg"></svg>
+    `;
+    
     svg = document.getElementById('edges-svg');
     nodes = {}; edges = []; adjList = {}; 
     nodeIdCounter = 0; startNodeId = null; targetNodeId = null;
@@ -141,9 +147,9 @@ window.addEventListener('mouseup', () => { draggingNodeId = null; });
 
 function getSpeedDelay() {
     const speed = document.getElementById('speed-select').value;
-    if (speed === 'fast') return 400;   
-    if (speed === 'slow') return 1200;  
-    return 800;                         
+    if (speed === 'fast') return 500;   
+    if (speed === 'slow') return 1500;  
+    return 1000;
 }
 
 function clearPaths() {
@@ -153,12 +159,24 @@ function clearPaths() {
         e.el.classList.remove('path');
         e.el.style.stroke = '#7f8c8d';
     });
+    
+    // Tắt bảng Log khi xóa màu đồ thị
+    const statusBox = document.getElementById('algo-status-box');
+    if (statusBox) statusBox.style.display = 'none';
 }
 
 function startAlgorithm() {
     if (isAnimating || startNodeId === null || targetNodeId === null) return;
     const algo = document.getElementById('algo-select').value;
     clearPaths();
+    
+    // Bật bảng Log lên khi bắt đầu chạy
+    const statusBox = document.getElementById('algo-status-box');
+    if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.innerHTML = `Khởi động thuật toán...`;
+    }
+
     if (algo === 'bfs') runBFS();
     else if (algo === 'dfs') runDFS();
     else if (algo === 'dijkstra') runDijkstra();
@@ -264,6 +282,7 @@ function getShortestPath(prev, target) {
 function animateAlgorithm(visitedOrder, pathNodes, prev) {
     isAnimating = true; 
     const delay = getSpeedDelay();
+    const statusBox = document.getElementById('algo-status-box'); // Gọi bảng Log
 
     for (let i = 0; i <= visitedOrder.length; i++) {
         if (i === visitedOrder.length) {
@@ -281,6 +300,19 @@ function animateAlgorithm(visitedOrder, pathNodes, prev) {
                 let u = prev[curr], v = curr;
                 let edgeEl = document.getElementById(`edge-${u}-${v}`) || document.getElementById(`edge-${v}-${u}`);
                 if (edgeEl) edgeEl.style.stroke = '#3498db';
+
+                // BÁO CÁO: Đang xét từ u sang v
+                if (statusBox) {
+                    let nameU = nodes[u].el.textContent;
+                    let nameV = nodes[v].el.textContent;
+                    statusBox.innerHTML = `Đang duyệt: <span class="node-highlight">${nameU}</span> ➔ <span class="node-highlight">${nameV}</span>`;
+                }
+            } else if (curr === startNodeId) {
+                // BÁO CÁO: Điểm xuất phát
+                if (statusBox) {
+                    let nameStart = nodes[curr].el.textContent;
+                    statusBox.innerHTML = `Bắt đầu tại: <span class="node-highlight">${nameStart}</span>`;
+                }
             }
         }, delay * i);
     }
