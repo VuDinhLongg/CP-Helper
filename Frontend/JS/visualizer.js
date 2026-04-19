@@ -319,7 +319,13 @@ function animateAlgorithm(visitedOrder, pathNodes, prev) {
 }
 
 function animateShortestPath(pathNodes) {
-    if (pathNodes.length === 0) { isAnimating = false; return; }
+    const statusBox = document.getElementById('algo-status-box');
+
+    if (pathNodes.length === 0) { 
+        isAnimating = false; 
+        if (statusBox) statusBox.innerHTML = `<span style="color: #e74c3c; font-weight: bold;">Không tìm thấy đường đi!</span>`;
+        return; 
+    }
 
     for (let i = 0; i < pathNodes.length; i++) {
         setTimeout(() => {
@@ -335,9 +341,18 @@ function animateShortestPath(pathNodes) {
                     edgeEl.classList.add('path');
                     edgeEl.style.stroke = ''; 
                 }
+                
+                if (statusBox) {
+                    let nameU = nodes[u].el.textContent;
+                    let nameV = nodes[v].el.textContent;
+                    statusBox.innerHTML = `Truy vết: <span style="color:#f1c40f; font-weight:bold;">${nameU}</span> ➔ <span style="color:#f1c40f; font-weight:bold;">${nameV}</span>`;
+                }
             }
 
-            if (i === pathNodes.length - 1) isAnimating = false;
+            if (i === pathNodes.length - 1) {
+                isAnimating = false;
+                if (statusBox) statusBox.innerHTML = `<span style="color: #2ecc71; font-weight: bold;">Đã hoàn thành!</span>`;
+            }
         }, (getSpeedDelay() / 2) * i); 
     }
 }

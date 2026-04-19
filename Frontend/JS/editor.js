@@ -98,7 +98,7 @@ function changeTestLang(editorType) {
 // =========================================================
 // --- 1. HÀM GIAO TIẾP VỚI BACKEND (DÙNG CHUNG)
 // =========================================================
-async function fetchBackend(langCode, code, input) {
+async function fetchBackend(langCode, code, input, timeLimit = 1000, memoryLimit = 256) {
     let backendLang = "c++";
     if (langCode === 'python') backendLang = "python";
     if (langCode === 'java') backendLang = "java";
@@ -106,7 +106,13 @@ async function fetchBackend(langCode, code, input) {
     const response = await fetch('http://127.0.0.1:5000/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: backendLang, code: code, input: input })
+        body: JSON.stringify({ 
+            language: backendLang, 
+            code: code, 
+            input: input,
+            time_limit: timeLimit,    // Gửi Time Limit xuống API
+            memory_limit: memoryLimit // Gửi Memory Limit xuống API
+        })
     });
     return await response.json();
 }
@@ -137,7 +143,7 @@ async function runCode() {
         if (result.code !== 0) {
             document.getElementById('modal-error-text').textContent = result.stderr || "Lỗi không xác định";
             document.getElementById('error-modal').style.display = 'flex';
-            outputConsole.textContent = "Chương trình dính lỗi! Vui lòng xem chi tiết trên Pop-up.";
+            outputConsole.textContent = "Lỗi biên dịch";
             outputConsole.style.color = "#e74c3c";
         } else {
             outputConsole.textContent = result.stdout;
@@ -153,125 +159,105 @@ async function runCode() {
 }
 
 // =========================================================
-// --- 3. HÀM CHẠY STRESS TEST CÓ NÚT DỪNG KHẨN CẤP
+// --- 3. HÀM CHẠY STRESS TEST (SIÊU TỐC NATIVE)
 // =========================================================
-
-let isStressTesting = false; // Công tắc kiểm soát vòng lặp
-
-function stopStressTest() {
-    isStressTesting = false; // Tắt công tắc
-}
 
 async function runStressTest() {
     const consoleOut = document.getElementById('stress-console');
     const btnRun = document.getElementById('btnRunStress');
-    const btnStop = document.getElementById('btnStopStress');
+    
+    // 1. Thu thập dữ liệu từ giao diện
     const testCount = parseInt(document.getElementById('test-count').value) || 100;
+    const timeLimit = parseInt(document.getElementById('time-limit').value) || 1000;
+    const memoryLimit = parseInt(document.getElementById('memory-limit').value) || 256;
 
-    const genCode = typeof genEditor !== 'undefined' ? genEditor.getValue() : '';
-    const bruteCode = typeof bruteEditor !== 'undefined' ? bruteEditor.getValue() : '';
-    const optCode = typeof optEditor !== 'undefined' ? optEditor.getValue() : '';
-
+    // 2. Thu thập ngôn ngữ
     const genLang = document.getElementById('lang-gen').value;
     const bruteLang = document.getElementById('lang-brute').value;
     const optLang = document.getElementById('lang-opt').value;
 
+    // 3. Thu thập code (ĐÂY CHÍNH LÀ ĐOẠN BẠN BỊ THIẾU LÚC NÃY)
+    const genCode = typeof genEditor !== 'undefined' ? genEditor.getValue() : '';
+    const bruteCode = typeof bruteEditor !== 'undefined' ? bruteEditor.getValue() : '';
+    const optCode = typeof optEditor !== 'undefined' ? optEditor.getValue() : '';
+
+    // 4. Kiểm tra xem có ô nào bị bỏ trống không
     if (!genCode.trim() || !bruteCode.trim() || !optCode.trim()) {
-        consoleOut.textContent = "Vui lòng nhập đầy đủ code cho cả 3 ô (Generator, Brute-force, Optimized)!";
-        consoleOut.style.color = "#e74c3c";
+        consoleOut.innerHTML = "<span style='color:#e74c3c'>Vui lòng nhập đầy đủ code cho cả 3 ô (Generator, Brute-force, Optimized)!</span>";
         return;
     }
 
-    // --- BẬT CHẾ ĐỘ TESTING ---
-    isStressTesting = true;
-    btnRun.style.display = 'none';            // Giấu nút Run
-    if (btnStop) btnStop.style.display = 'inline-block'; // Hiện nút Stop
-    consoleOut.innerHTML = `<span style="color:#ccc">Bắt đầu sinh test và Kiểm tra đầu ra...</span><br>`;
+    // 5. Khóa nút bấm và Hiển thị trạng thái đang chạy
+    btnRun.disabled = true;
+    btnRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
+    consoleOut.innerHTML = `<span style="color:cyan;">Đang tạo ${testCount} bộ test và kiểm tra đầu ra...</span>`;
 
-    let allPassed = true;
-    let stoppedByUser = false;
+    try {
+        // 6. Gửi API siêu tốc
+        const response = await fetch('http://127.0.0.1:5000/stress-test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                test_count: testCount,
+                time_limit: timeLimit,
+                memory_limit: memoryLimit,
+                gen_lang: genLang,       
+                brute_lang: bruteLang,   
+                opt_lang: optLang,       
+                gen_code: genCode,
+                brute_code: bruteCode,
+                opt_code: optCode
+            })
+        });
 
-    for (let i = 1; i <= testCount; i++) {
-        // KIỂM TRA CÔNG TẮC: Nếu user ấn Stop thì thoát vòng lặp ngay
-        if (!isStressTesting) {
-            stoppedByUser = true;
-            consoleOut.innerHTML += `<br><br><span style="color:#f39c12; font-size: 15px;"><b>ĐÃ DỪNG STRESS TEST (Chạy được ${i-1}/${testCount} test).</b></span>`;
-            break;
+        const result = await response.json();
+
+        // 7. Xử lý và In kết quả 
+        if (result.verdict === "AC") {
+            consoleOut.innerHTML = `<span style="color:#2ecc71; font-size: 16px;"><b>Accepted! Đã vượt qua ${testCount} test(s)</b></span>`;
+        } 
+        else if (result.verdict === "ERROR") {
+            consoleOut.innerHTML = `<span style="color:#e74c3c;">Lỗi Biên Dịch / Lỗi Hệ Thống:</span><br><pre style="color:#fff;">${result.actual}</pre>`;
+        } 
+        else {
+            let verdictColor = "#e74c3c"; // Đỏ mặc định (WA, RTE)
+            let verdictText = result.verdict === "WA" ? "Wrong Answer" : "Runtime Error";
+            
+            if (result.verdict === "TLE") {
+                verdictColor = "#f39c12"; // Cam cho TLE
+                verdictText = "Time Limit Exceeded";
+            }
+
+            consoleOut.innerHTML = 
+                `<div style="margin-top: 10px; font-family: 'Inter', sans-serif; text-align: left; border-top: 1px dashed #444; padding-top: 12px;">` +
+                    `<div style="margin-bottom: 8px; color: ${verdictColor}; font-size: 16px;">Test: #${result.test}, verdict: ${verdictText}</div>` +
+                    `<div style="margin-bottom: 10px;">` +
+                        `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
+                            `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Input</span>` +
+                            `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
+                        `</div>` +
+                        `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${result.input}</pre>` +
+                    `</div>` +
+                    `<div style="margin-bottom: 10px;">` +
+                        `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
+                            `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Output</span>` +
+                        `</div>` +
+                        `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: ${verdictColor}; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${result.actual}</pre>` +
+                    `</div>` +
+                    `<div style="margin-bottom: 10px;">` +
+                        `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
+                            `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Answer</span>` +
+                        `</div>` +
+                        `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${result.expected}</pre>` +
+                    `</div>` +
+                `</div>`;
         }
 
-        try {
-            // 1. Chạy Generator
-            const genRes = await fetchBackend(genLang, genCode, "");
-            if (genRes.code !== 0) {
-                consoleOut.innerHTML += `<br><span style="color:#e74c3c"><b>Lỗi ở Generator (Test ${i}):</b></span><br>${genRes.stderr}`;
-                allPassed = false; break;
-            }
-            const testCase = genRes.stdout;
-
-            // 2. Chạy Brute-force
-            const bruteRes = await fetchBackend(bruteLang, bruteCode, testCase);
-            if (bruteRes.code !== 0) {
-                consoleOut.innerHTML += `<br><span style="color:#e74c3c"><b>Lỗi ở code Brute-force (Test ${i}):</b></span><br>${bruteRes.stderr}<br><br><b>Test Case gây lỗi:</b><br>${testCase}`;
-                allPassed = false; break;
-            }
-            const expectedOut = bruteRes.stdout.trim();
-
-            // 3. Chạy Optimized
-            const optRes = await fetchBackend(optLang, optCode, testCase);
-            if (optRes.code !== 0) {
-                consoleOut.innerHTML += `<br><span style="color:#e74c3c"><b>Lỗi ở code Optimized (Test ${i}):</b></span><br>${optRes.stderr}<br><br><b>Test Case gây lỗi:</b><br>${testCase}`;
-                allPassed = false; break;
-            }
-            const actualOut = optRes.stdout.trim();
-
-            // 4. So Sánh
-            if (expectedOut !== actualOut) {
-                consoleOut.innerHTML += 
-                    `<div style="margin-top: 15px; font-family: 'Inter', sans-serif; text-align: left; border-top: 1px dashed #444; padding-top: 12px;">` +
-                        `<div style="font-weight: bold; margin-bottom: 8px; color: #e74c3c; font-size: 14px;">Test: #${i}, verdict: Wrong Answer</div>` +
-                        `<div style="margin-bottom: 10px;">` +
-                            `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
-                                `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Input</span>` +
-                                `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
-                            `</div>` +
-                            `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${testCase}</pre>` +
-                        `</div>` +
-                        `<div style="margin-bottom: 10px;">` +
-                            `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
-                                `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Output</span>` +
-                                `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
-                            `</div>` +
-                            `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${actualOut}</pre>` +
-                        `</div>` +
-                        `<div style="margin-bottom: 10px;">` +
-                            `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
-                                `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Answer</span>` +
-                                `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
-                            `</div>` +
-                            `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${expectedOut}</pre>` +
-                        `</div>` +
-                    `</div>`;
-                allPassed = false; 
-                break; 
-            } else {
-                // Tối ưu UI: Chỉ in đè 1 dòng duy nhất
-                consoleOut.innerHTML = `<span style="color:#ccc">Bắt đầu sinh test và Kiểm tra đầu ra...</span><br><br><span style="color:#2ecc71"><b>Đang chạy... đã đúng ${i} / ${testCount}</b></span>`;
-            }
-
-        } catch (err) {
-            consoleOut.innerHTML += `<br><span style="color:#e74c3c">Lỗi kết nối Backend: ${err.message}</span>`;
-            allPassed = false; 
-            break;
-        }
+    } catch (err) {
+        consoleOut.innerHTML = `<span style="color:#e74c3c">Lỗi gọi Backend: ${err.message}</span>`;
+    } finally {
+        btnRun.disabled = false;
+        btnRun.innerHTML = '<i class="fa-solid fa-play"></i> Run';
     }
-
-    if (allPassed && !stoppedByUser) {
-        consoleOut.innerHTML = `<span style="color:#2ecc71; font-size: 16px;"><b>Accepted ! (${testCount} test cases)</b></span>`;
-    }
-
-    // --- TẮT CHẾ ĐỘ TESTING, TRẢ LẠI GIAO DIỆN ---
-    isStressTesting = false;
-    btnRun.style.display = 'inline-block';    // Hiện lại nút Run
-    if (btnStop) btnStop.style.display = 'none'; // Giấu nút Stop
 }
 

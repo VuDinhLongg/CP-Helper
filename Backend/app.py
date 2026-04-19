@@ -74,5 +74,84 @@ def run_code():
         except Exception as e:
             return jsonify({'stdout': '', 'stderr': f'Lỗi server: {str(e)}', 'code': 1})
 
+@app.route('/stress-test', methods=['POST'])
+def run_stress_test():
+    data = request.get_json()
+    test_count = int(data.get('test_count', 100))
+    time_limit_sec = int(data.get('time_limit', 1000)) / 1000.0
+    
+    # Lấy thông tin code và ngôn ngữ từ Frontend
+    configs = {
+        'gen': {'code': data.get('gen_code'), 'lang': data.get('gen_lang')},
+        'brute': {'code': data.get('brute_code'), 'lang': data.get('brute_lang')},
+        'opt': {'code': data.get('opt_code'), 'lang': data.get('opt_lang')}
+    }
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        try:
+            # --- BƯỚC 1: CHUẨN BỊ FILE VÀ BIÊN DỊCH ---
+            exec_cmds = {}
+
+            for role, cfg in configs.items():
+                lang = cfg['lang']
+                code = cfg['code']
+                
+                if lang == 'python':
+                    file_path = os.path.join(temp_dir, f'{role}.py')
+                    with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
+                    exec_cmds[role] = ['python', file_path]
+                
+                elif lang == 'cpp': # ĐÃ SỬA: Thay 'c++' thành 'cpp' để khớp với HTML
+                    file_path = os.path.join(temp_dir, f'{role}.cpp')
+                    exe_path = os.path.join(temp_dir, f'{role}.exe')
+                    with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
+                    
+                    comp = subprocess.run(['g++', file_path, '-o', exe_path], capture_output=True, text=True)
+                    if comp.returncode != 0:
+                        return jsonify({"verdict": "ERROR", "actual": f"Lỗi biên dịch {role}:\n{comp.stderr}"})
+                    exec_cmds[role] = [exe_path]
+                
+                elif lang == 'java':
+                    file_path = os.path.join(temp_dir, 'Main.java')
+                    with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
+                    
+                    comp = subprocess.run(['javac', file_path], capture_output=True, text=True)
+                    if comp.returncode != 0:
+                        return jsonify({"verdict": "ERROR", "actual": f"Lỗi biên dịch {role} (Java):\n{comp.stderr}"})
+                    os.rename(os.path.join(temp_dir, 'Main.class'), os.path.join(temp_dir, f'{role}.class'))
+                    exec_cmds[role] = ['java', '-cp', temp_dir, role]
+
+            # --- BƯỚC 2: VÒNG LẶP NATIVE ---
+            for i in range(1, test_count + 1):
+                gen_proc = subprocess.run(exec_cmds['gen'], capture_output=True, text=True, timeout=5)
+                test_case = gen_proc.stdout.strip()
+
+                brute_proc = subprocess.run(exec_cmds['brute'], input=test_case, capture_output=True, text=True, timeout=10)
+                expected_out = brute_proc.stdout.strip()
+
+                try:
+                    opt_proc = subprocess.run(
+                        exec_cmds['opt'], 
+                        input=test_case, 
+                        capture_output=True, 
+                        text=True, 
+                        timeout=time_limit_sec
+                    )
+                    
+                    if opt_proc.returncode != 0:
+                        return jsonify({"verdict": "RTE", "test": i, "input": test_case, "expected": expected_out, "actual": opt_proc.stderr or "Runtime Error"})
+                    
+                    actual_out = opt_proc.stdout.strip()
+                    if actual_out != expected_out:
+                        return jsonify({"verdict": "WA", "test": i, "input": test_case, "expected": expected_out, "actual": actual_out})
+                        
+                except subprocess.TimeoutExpired:
+                    return jsonify({"verdict": "TLE", "test": i, "input": test_case, "expected": expected_out, "actual": f"Chương trình chạy quá {time_limit_sec}s"})
+
+            return jsonify({"verdict": "AC", "passed": test_count})
+            
+        except Exception as e:
+            return jsonify({"verdict": "ERROR", "actual": f"Lỗi hệ thống: {str(e)}"})
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
