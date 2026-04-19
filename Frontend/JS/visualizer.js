@@ -167,6 +167,13 @@ function clearPaths() {
 
 function startAlgorithm() {
     if (isAnimating || startNodeId === null || targetNodeId === null) return;
+
+    const btnRun = document.getElementById('btnRunAlgo');
+    if (btnRun) {
+        btnRun.disabled = true; // Khóa nút không cho bấm 2 lần
+        btnRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang chạy...';
+    }
+
     const algo = document.getElementById('algo-select').value;
     clearPaths();
     
@@ -174,7 +181,6 @@ function startAlgorithm() {
     const statusBox = document.getElementById('algo-status-box');
     if (statusBox) {
         statusBox.style.display = 'block';
-        statusBox.innerHTML = `Khởi động thuật toán...`;
     }
 
     if (algo === 'bfs') runBFS();
@@ -320,10 +326,13 @@ function animateAlgorithm(visitedOrder, pathNodes, prev) {
 
 function animateShortestPath(pathNodes) {
     const statusBox = document.getElementById('algo-status-box');
+    const btnRun = document.getElementById('btnRunAlgo');
 
     if (pathNodes.length === 0) { 
         isAnimating = false; 
         if (statusBox) statusBox.innerHTML = `<span style="color: #e74c3c; font-weight: bold;">Không tìm thấy đường đi!</span>`;
+        
+        if (btnRun) { btnRun.disabled = false; btnRun.innerHTML = 'Chạy thuật toán'; } 
         return; 
     }
 
@@ -352,6 +361,8 @@ function animateShortestPath(pathNodes) {
             if (i === pathNodes.length - 1) {
                 isAnimating = false;
                 if (statusBox) statusBox.innerHTML = `<span style="color: #2ecc71; font-weight: bold;">Đã hoàn thành!</span>`;
+                
+                if (btnRun) { btnRun.disabled = false; btnRun.innerHTML = 'Chạy thuật toán'; } 
             }
         }, (getSpeedDelay() / 2) * i); 
     }
