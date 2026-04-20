@@ -98,7 +98,7 @@ function changeTestLang(editorType) {
 // =========================================================
 // --- 1. HÀM GIAO TIẾP VỚI BACKEND (DÙNG CHUNG)
 // =========================================================
-async function fetchBackend(langCode, code, input, timeLimit = 1000, memoryLimit = 256) {
+async function fetchBackend(langCode, code, input, timeLimit = 1000) {
     let backendLang = "c++";
     if (langCode === 'python') backendLang = "python";
     if (langCode === 'java') backendLang = "java";
@@ -110,8 +110,7 @@ async function fetchBackend(langCode, code, input, timeLimit = 1000, memoryLimit
             language: backendLang, 
             code: code, 
             input: input,
-            time_limit: timeLimit,    // Gửi Time Limit xuống API
-            memory_limit: memoryLimit // Gửi Memory Limit xuống API
+            time_limit: timeLimit // Đã xóa memory_limit ở đây
         })
     });
     return await response.json();
@@ -169,7 +168,6 @@ async function runStressTest() {
     // 1. Thu thập dữ liệu từ giao diện
     const testCount = parseInt(document.getElementById('test-count').value) || 100;
     const timeLimit = parseInt(document.getElementById('time-limit').value) || 1000;
-    const memoryLimit = parseInt(document.getElementById('memory-limit').value) || 256;
 
     // 2. Thu thập ngôn ngữ
     const genLang = document.getElementById('lang-gen').value;
@@ -200,7 +198,6 @@ async function runStressTest() {
             body: JSON.stringify({
                 test_count: testCount,
                 time_limit: timeLimit,
-                memory_limit: memoryLimit,
                 gen_lang: genLang,       
                 brute_lang: bruteLang,   
                 opt_lang: optLang,       

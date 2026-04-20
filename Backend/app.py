@@ -96,14 +96,18 @@ def run_stress_test():
                 lang = cfg['lang']
                 code = cfg['code']
                 
+                # TẠO THƯ MỤC RIÊNG CHO TỪNG ROLE (gen, brute, opt)
+                role_dir = os.path.join(temp_dir, role)
+                os.makedirs(role_dir, exist_ok=True)
+                
                 if lang == 'python':
-                    file_path = os.path.join(temp_dir, f'{role}.py')
+                    file_path = os.path.join(role_dir, f'{role}.py')
                     with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
                     exec_cmds[role] = ['python', file_path]
                 
-                elif lang == 'cpp': # ĐÃ SỬA: Thay 'c++' thành 'cpp' để khớp với HTML
-                    file_path = os.path.join(temp_dir, f'{role}.cpp')
-                    exe_path = os.path.join(temp_dir, f'{role}.exe')
+                elif lang == 'cpp':
+                    file_path = os.path.join(role_dir, f'{role}.cpp')
+                    exe_path = os.path.join(role_dir, f'{role}.exe')
                     with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
                     
                     comp = subprocess.run(['g++', file_path, '-o', exe_path], capture_output=True, text=True)
@@ -112,14 +116,15 @@ def run_stress_test():
                     exec_cmds[role] = [exe_path]
                 
                 elif lang == 'java':
-                    file_path = os.path.join(temp_dir, 'Main.java')
+                    # Fix lỗi Java: Giữ nguyên tên Main.java, nằm gọn trong thư mục riêng
+                    file_path = os.path.join(role_dir, 'Main.java')
                     with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
                     
                     comp = subprocess.run(['javac', file_path], capture_output=True, text=True)
                     if comp.returncode != 0:
                         return jsonify({"verdict": "ERROR", "actual": f"Lỗi biên dịch {role} (Java):\n{comp.stderr}"})
-                    os.rename(os.path.join(temp_dir, 'Main.class'), os.path.join(temp_dir, f'{role}.class'))
-                    exec_cmds[role] = ['java', '-cp', temp_dir, role]
+                    # Gọi Java chạy class Main trong thư mục của nó
+                    exec_cmds[role] = ['java', '-cp', role_dir, 'Main']
 
             # --- BƯỚC 2: VÒNG LẶP NATIVE ---
             for i in range(1, test_count + 1):

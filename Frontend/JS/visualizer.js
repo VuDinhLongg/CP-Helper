@@ -1,3 +1,57 @@
+class MinHeap {
+    constructor() {
+        this.heap = []; // Mảng lưu các node { id, dist }
+    }
+
+    // Trả về size
+    size() { return this.heap.length; }
+
+    // Xem phần tử nhỏ nhất mà không lấy ra
+    peek() { return this.heap[0]; }
+
+    // Thêm phần tử mới vào heap, rồi "nổi" lên đúng vị trí
+    push(node) {
+        this.heap.push(node);
+        this._bubbleUp(this.heap.length - 1);
+    }
+
+    // Lấy phần tử nhỏ nhất ra, rồi "chìm" root mới xuống đúng vị trí
+    pop() {
+        const top = this.heap[0];
+        const last = this.heap.pop();
+        if (this.heap.length > 0) {
+            this.heap[0] = last;
+            this._sinkDown(0);
+        }
+        return top;
+    }
+
+    // Đẩy node tại index i lên trên nếu nhỏ hơn cha
+    _bubbleUp(i) {
+        while (i > 0) {
+            const parent = Math.floor((i - 1) / 2);
+            if (this.heap[parent].dist <= this.heap[i].dist) break;
+            [this.heap[parent], this.heap[i]] = [this.heap[i], this.heap[parent]];
+            i = parent;
+        }
+    }
+
+    // Đẩy node tại index i xuống dưới nếu lớn hơn con
+    _sinkDown(i) {
+        const n = this.heap.length;
+        while (true) {
+            let smallest = i;
+            const left  = 2 * i + 1;
+            const right = 2 * i + 2;
+            if (left  < n && this.heap[left].dist  < this.heap[smallest].dist) smallest = left;
+            if (right < n && this.heap[right].dist < this.heap[smallest].dist) smallest = right;
+            if (smallest === i) break;
+            [this.heap[smallest], this.heap[i]] = [this.heap[i], this.heap[smallest]];
+            i = smallest;
+        }
+    }
+}
+
 const container = document.getElementById('graph-container');
 let svg = document.getElementById('edges-svg');
 
@@ -160,7 +214,6 @@ function clearPaths() {
         e.el.style.stroke = '#7f8c8d';
     });
     
-    // Tắt bảng Log khi xóa màu đồ thị
     const statusBox = document.getElementById('algo-status-box');
     if (statusBox) statusBox.style.display = 'none';
 }
@@ -188,7 +241,6 @@ function startAlgorithm() {
     else if (algo === 'dijkstra') runDijkstra();
 }
 
-// 3. Cập nhật cách đọc dữ liệu cho BFS và DFS
 function runBFS() {
     let visited = {}, prev = {};
     Object.keys(nodes).forEach(id => { visited[id] = false; prev[id] = null; });
@@ -217,42 +269,48 @@ function runBFS() {
 function runDFS() {
     let visited = {}, prev = {};
     Object.keys(nodes).forEach(id => { visited[id] = false; prev[id] = null; });
-    
-    let stack = [startNodeId];
+
     let visitedOrder = [], targetFound = false;
 
-    while (stack.length > 0) {
-        let curr = stack.pop();
-        if (visited[curr]) continue;
+    // Hàm đệ quy nội bộ — trả về true nếu tìm thấy target
+    function dfs(curr) {
+        if (targetFound) return;
 
         visited[curr] = true;
         visitedOrder.push(curr);
 
-        if (curr === targetNodeId) { targetFound = true; break; }
+        if (curr === targetNodeId) {
+            targetFound = true;
+            return;
+        }
 
-        adjList[curr].forEach(edge => {
-            let neighbor = edge.v;
+        for (const edge of adjList[curr]) {
+            const neighbor = edge.v;
             if (!visited[neighbor]) {
                 prev[neighbor] = curr;
-                stack.push(neighbor);
+                dfs(neighbor);
+                if (targetFound) return;
             }
-        });
+        }
     }
+
+    dfs(startNodeId);
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
 
-// 4. Cập nhật "Não bộ" Dijkstra để đọc trọng số thủ công
 function runDijkstra() {
     let visited = {}, prev = {}, dist = {};
     Object.keys(nodes).forEach(id => { visited[id] = false; prev[id] = null; dist[id] = Infinity; });
-    
+
     dist[startNodeId] = 0;
-    let pq = [{ id: startNodeId, dist: 0 }];
+
+    const pq = new MinHeap();
+    pq.push({ id: startNodeId, dist: 0 });
+
     let visitedOrder = [], targetFound = false;
 
-    while(pq.length > 0) {
-        pq.sort((a, b) => a.dist - b.dist);
-        let curr = pq.shift().id;
+    while (pq.size() > 0) {
+        const { id: curr } = pq.pop();
 
         if (visited[curr]) continue;
         visited[curr] = true;
@@ -261,18 +319,20 @@ function runDijkstra() {
         if (curr === targetNodeId) { targetFound = true; break; }
 
         adjList[curr].forEach(edge => {
-            let neighbor = edge.v;
-            let weight = edge.w; // Trích xuất trọng số w
-            
+            const neighbor = edge.v;
+            const weight   = edge.w;
+
             if (!visited[neighbor]) {
-                let newDist = dist[curr] + weight;
+                const newDist = dist[curr] + weight;
                 if (newDist < dist[neighbor]) {
-                    dist[neighbor] = newDist; prev[neighbor] = curr;
+                    dist[neighbor]  = newDist;
+                    prev[neighbor]  = curr;
                     pq.push({ id: neighbor, dist: newDist });
                 }
             }
         });
     }
+
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
 
@@ -288,7 +348,7 @@ function getShortestPath(prev, target) {
 function animateAlgorithm(visitedOrder, pathNodes, prev) {
     isAnimating = true; 
     const delay = getSpeedDelay();
-    const statusBox = document.getElementById('algo-status-box'); // Gọi bảng Log
+    const statusBox = document.getElementById('algo-status-box');
 
     for (let i = 0; i <= visitedOrder.length; i++) {
         if (i === visitedOrder.length) {
