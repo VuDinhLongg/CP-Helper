@@ -166,7 +166,12 @@ async function runStressTest() {
     const btnRun = document.getElementById('btnRunStress');
     
     // 1. Thu thập dữ liệu từ giao diện
-    const testCount = parseInt(document.getElementById('test-count').value) || 100;
+    let tmpTestCount = parseInt(document.getElementById('test-count').value) || 100;
+    if (tmpTestCount > 1000){
+        tmpTestCount = 1000;
+        document.getElementById('test-count').value = 1000;
+    }
+    const testCount = tmpTestCount;
     const timeLimit = parseInt(document.getElementById('time-limit').value) || 1000;
 
     // 2. Thu thập ngôn ngữ
