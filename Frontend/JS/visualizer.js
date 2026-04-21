@@ -118,8 +118,8 @@ function addEdge(u, v, w = 1) {
     // Tạo thẻ Text (Chữ) của SVG để hiển thị con số lên màn hình
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     
-    // NẾU TRỌNG SỐ LÀ 1 (MẶC ĐỊNH) THÌ ẨN ĐI, KHÁC 1 THÌ MỚI HIỆN
-    text.textContent = (w === 1) ? "" : w; 
+    const algo = document.getElementById('algo-select').value;
+    text.textContent = (algo != "dijkstra") ? "" : w; 
     
     text.setAttribute('fill', '#ffd700'); 
     text.setAttribute('font-size', '14px');
