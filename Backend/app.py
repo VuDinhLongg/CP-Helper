@@ -128,12 +128,22 @@ def run_stress_test():
 
             # --- BƯỚC 2: VÒNG LẶP NATIVE ---
             for i in range(1, test_count + 1):
-                gen_proc = subprocess.run(exec_cmds['gen'], capture_output=True, text=True, timeout=5)
-                test_case = gen_proc.stdout.strip()
+                
+                # 1. Chạy Generator (Áp dụng giới hạn thời gian chung)
+                try:
+                    gen_proc = subprocess.run(exec_cmds['gen'], capture_output=True, text=True, timeout=time_limit_sec)
+                    test_case = gen_proc.stdout.strip()
+                except subprocess.TimeoutExpired:
+                    return jsonify({"verdict": "TLE", "test": i, "input": "Quá hạn thời gian khi đang sinh Test", "expected": "N/A", "actual": f"Lỗi TLE: Generator chạy quá {time_limit_sec}s"})
 
-                brute_proc = subprocess.run(exec_cmds['brute'], input=test_case, capture_output=True, text=True, timeout=10)
-                expected_out = brute_proc.stdout.strip()
+                # 2. Chạy Brute-force (Áp dụng giới hạn thời gian chung)
+                try:
+                    brute_proc = subprocess.run(exec_cmds['brute'], input=test_case, capture_output=True, text=True, timeout=time_limit_sec)
+                    expected_out = brute_proc.stdout.strip()
+                except subprocess.TimeoutExpired:
+                    return jsonify({"verdict": "TLE", "test": i, "input": test_case, "expected": "N/A", "actual": f"Lỗi TLE: Code Thuật Trâu (Brute-force) chạy quá {time_limit_sec}s"})
 
+                # 3. Chạy Optimized (Áp dụng giới hạn thời gian chung)
                 try:
                     opt_proc = subprocess.run(
                         exec_cmds['opt'], 
@@ -151,7 +161,7 @@ def run_stress_test():
                         return jsonify({"verdict": "WA", "test": i, "input": test_case, "expected": expected_out, "actual": actual_out})
                         
                 except subprocess.TimeoutExpired:
-                    return jsonify({"verdict": "TLE", "test": i, "input": test_case, "expected": expected_out, "actual": f"Chương trình chạy quá {time_limit_sec}s"})
+                    return jsonify({"verdict": "TLE", "test": i, "input": test_case, "expected": expected_out, "actual": f"Lỗi TLE: Code Tối Ưu (Optimized) chạy quá {time_limit_sec}s"})
 
             return jsonify({"verdict": "AC", "passed": test_count})
             
