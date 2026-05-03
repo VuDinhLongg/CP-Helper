@@ -1,6 +1,4 @@
-// ==========================================
-// 1. ĐIỀU HƯỚNG TAB & SIDEBAR
-// ==========================================
+/* 1. ĐIỀU HƯỚNG TAB & SIDEBAR */
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
@@ -22,16 +20,12 @@ function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('collapsed');
 }
 
-// ==========================================
-// 2. QUẢN LÝ POP-UP MODAL
-// ==========================================
+/* 2. QUẢN LÝ POP-UP MODAL */
 function closeErrorModal() {
     document.getElementById('error-modal').style.display = 'none';
 }
 
-// ==========================================
-// 3. HỆ THỐNG KÉO THẢ VÁCH NGĂN (RESIZER)
-// ==========================================
+/* 3. HỆ THỐNG KÉO THẢ VÁCH NGĂN (RESIZER) */
 function makeResizable(resizerId, elem1Id, elem2Id, direction) {
     const resizer = document.getElementById(resizerId);
     const elem1 = document.getElementById(elem1Id);
