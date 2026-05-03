@@ -1,8 +1,3 @@
-/* ========================================================
-   FILE: visualizer.css
-   Mục đích: Styles và Animations cho Algorithm Visualizer
-   ======================================================== */
-
 /* Bố cục Algorithm Visualizer */
 .graph-editor-layout { 
     display: flex; 

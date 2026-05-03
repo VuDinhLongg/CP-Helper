@@ -1,7 +1,4 @@
-/* ========================================================
-   FILE: base.css
-   Mục đích: Reset CSS, Biến môi trường, Layout chính
-   ======================================================== */
+/* Reset CSS, Biến môi trường, Layout chính */
 
 :root {
     --bg-main: #3e3d32;
@@ -26,7 +23,7 @@ body {
     overflow: hidden; 
 }
 
-/* Tút lại Thanh Cuộn (Scrollbar) chuẩn IDE Dark Theme */
+/* Thanh Cuộn (Scrollbar) chuẩn IDE Dark Theme */
 ::-webkit-scrollbar { 
     width: 12px; height: 12px; 
 }
