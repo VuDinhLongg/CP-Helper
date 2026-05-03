@@ -1,0 +1,133 @@
+/* ========================================================
+   FILE: ide.css
+   Mục đích: Sidebar, Nút bấm và Bố cục cho Online IDE & Stress Test
+   ======================================================== */
+
+/* Sidebar & Menu Navigation */
+.sidebar { 
+    width: 250px; 
+    transition: width 0.5s ease; 
+    overflow: hidden; 
+    background-color: var(--bg-sidebar); 
+    white-space: nowrap; 
+    padding: 8px; 
+}
+
+.sidebar.collapsed { 
+    width: 85px; 
+}
+
+.logo-container { 
+    display: flex; 
+    align-items: center; 
+    padding: 15px; 
+    gap: 15px; 
+}
+
+.logo { 
+    font-size: 36px; 
+    font-weight: bold; 
+    color: var(--accent-yellow); 
+    margin-bottom: 36px; 
+}
+
+.menu-item { 
+    display: flex; 
+    align-items: center; 
+    padding: 12px 15px; 
+    margin: 8px 10px; 
+    border-radius: 16px; 
+    color: var(--text-muted); 
+    text-decoration: none; 
+    gap: 16px; 
+    transition: background-color 0.2s ease; 
+}
+
+.menu-item.active, 
+.menu-item:hover { 
+    background-color: #333; 
+    color: white; 
+}
+
+.sidebar.collapsed .menu-text, 
+.sidebar.collapsed .brand-wrapper { 
+    opacity: 0; 
+    width: 0; 
+    overflow: hidden; 
+    pointer-events: none; 
+}
+
+.tab-content { 
+    display: none; 
+}
+
+.tab-content.active { 
+    display: block; 
+    animation: fadeIn 0.3s; 
+}
+
+/* UI Components (Buttons & Selects) */
+.btn { 
+    padding: 8px 16px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: 600; 
+}
+
+.btn-primary { 
+    background-color: #007acc; 
+    color: white; 
+    margin-left: 10px; 
+}
+
+.btn-secondary { 
+    background-color: #3e3e42; 
+    color: white; 
+    margin-left: 10px; 
+}
+
+.custom-select { 
+    background-color: #252526; 
+    color: #e0e0e0; 
+    border: 1px solid #444; 
+    padding: 8px 12px; 
+    border-radius: 8px; 
+    font-size: 14px; 
+    outline: none; 
+    cursor: pointer; 
+    transition: border-color 0.2s; 
+}
+
+.custom-select:focus { border-color: #007acc; }
+.custom-select option { background-color: #1e1e1e; color: #fff; padding: 10px; }
+
+/* Bố cục IDE (Code Editor & Test Gen) */
+.ide-container { 
+    display: flex; 
+    height: 85vh; 
+    width: 100%; 
+}
+.editor-section, .io-section { 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+}
+.input-area, .output-area { 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+}
+
+.stress-editors-container { 
+    display: flex; 
+    height: 70%; 
+    width: 100%; 
+}
+.stress-output-container { 
+    display: flex; 
+    flex-direction: column; 
+    height: 30%; 
+    overflow: hidden; 
+    border-top: 1px solid #444; 
+}
