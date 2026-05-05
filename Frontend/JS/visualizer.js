@@ -441,6 +441,7 @@ function buildGraphFromEdgeList() {
     let edgesToBuild = [];
     let uniqueNodes = new Set(); 
 
+    // Đọc danh sách cạnh
     lines.forEach(line => {
         const parts = line.trim().split(/\s+/); 
         if (parts.length >= 2) {
@@ -458,13 +459,41 @@ function buildGraphFromEdgeList() {
     if (targetInput) uniqueNodes.add(targetInput);
 
     if (uniqueNodes.size === 0) return;
+
+    // --- BẮT ĐẦU ĐOẠN CODE MỚI THÊM: TỰ ĐỘNG SINH ĐỈNH TỪ 1 ĐẾN MAX ---
+    let isNumeric = true;
+    let maxNode = 0;
+    let minNode = Infinity;
+
+    // Kiểm tra xem tất cả các đỉnh có phải là số không, và tìm Max, Min
+    uniqueNodes.forEach(node => {
+        let num = parseInt(node, 10);
+        // Nếu có chữ cái (VD: 'A', 'B') thì không điền bù
+        if (isNaN(num) || String(num) !== String(node)) { 
+            isNumeric = false;
+        } else {
+            if (num > maxNode) maxNode = num;
+            if (num < minNode) minNode = num;
+        }
+    });
+
+    // Nếu toàn bộ đỉnh là số nguyên, điền bù các đỉnh bị thiếu
+    if (isNumeric && maxNode > 0) {
+        // Hỗ trợ cả đồ thị 0-based (bắt đầu từ 0) hoặc 1-based (bắt đầu từ 1)
+        let startIdx = minNode === 0 ? 0 : 1; 
+        for (let i = startIdx; i <= maxNode; i++) {
+            uniqueNodes.add(i.toString());
+        }
+    }
+    // --- KẾT THÚC ĐOẠN CODE MỚI THÊM ---
+
     clearGraph();
 
     let w_container = container.clientWidth || 800;
     let h_container = container.clientHeight || 550;
     let nodeMap = {}; 
 
-    // 1. SẮP XẾP DANH SÁCH ĐỈNH TĂNG DẦN (Để đỉnh 1, 2, 3... xếp theo thứ tự)
+    // 1. SẮP XẾP DANH SÁCH ĐỈNH TĂNG DẦN
     let nodesArray = Array.from(uniqueNodes).sort((a, b) => {
         let numA = parseFloat(a), numB = parseFloat(b);
         if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
@@ -473,25 +502,21 @@ function buildGraphFromEdgeList() {
 
     // 2. THUẬT TOÁN CHIA LƯỚI (GRID LAYOUT)
     let numNodes = nodesArray.length;
-    let cols = Math.ceil(Math.sqrt(numNodes)); // Tính số cột (Lấy căn bậc 2)
-    let rows = Math.ceil(numNodes / cols);     // Tính số hàng tương ứng
+    let cols = Math.ceil(Math.sqrt(numNodes));
+    let rows = Math.ceil(numNodes / cols);
 
-    // Khoảng cách lề so với viền Canvas (để đỉnh không bị dính vách)
     let margin = 60; 
     let availableWidth = w_container - 2 * margin;
     let availableHeight = h_container - 2 * margin;
 
-    // Khoảng cách giữa các đỉnh (Tránh chia cho 0 nếu chỉ có 1 cột/hàng)
     let stepX = cols > 1 ? availableWidth / (cols - 1) : availableWidth / 2;
     let stepY = rows > 1 ? availableHeight / (rows - 1) : availableHeight / 2;
 
     // 3. RẢI ĐỈNH LÊN LƯỚI
     nodesArray.forEach((nodeName, index) => {
-        // Xác định vị trí hàng (r) và cột (c) của đỉnh hiện tại
         let r = Math.floor(index / cols);
         let c = index % cols;
 
-        // Tính toán tọa độ X, Y
         let x = cols > 1 ? margin + c * stepX : w_container / 2;
         let y = rows > 1 ? margin + r * stepY : h_container / 2;
         
