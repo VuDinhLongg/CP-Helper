@@ -68,9 +68,11 @@ Vì hệ thống hiện tại thao tác trực tiếp với các tiến trình c
 
 **1. Tải mã nguồn về máy:**
 ```
-git clone https://github.com/LonggVuz/cp-helper.git
+git clone https://github.com/VuDinhLongg/CP_Helper.git
+```
 
-cd cp-helper
+```
+cd CP_Helper
 ```
 
 **2. Cài đặt thư viện cho Backend:**
