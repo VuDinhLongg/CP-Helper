@@ -5,6 +5,16 @@ let optEditor;
 
 require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' } });
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[char]);
+}
+
 require(['vs/editor/editor.main'], function () {
     
     mainEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
@@ -141,7 +151,7 @@ async function runCode() {
         const result = await fetchBackend(langCode, code, input);
         if (result.code !== 0) {
             document.getElementById('modal-error-text').textContent = result.stderr || "Lỗi không xác định";
-            document.getElementById('error-modal').style.display = 'flex';
+            showErrorModal();
             outputConsole.textContent = "Lỗi biên dịch";
             outputConsole.style.color = "#e74c3c";
         } else {
@@ -186,14 +196,14 @@ async function runStressTest() {
 
     // 4. Kiểm tra xem có ô nào bị bỏ trống không
     if (!genCode.trim() || !bruteCode.trim() || !optCode.trim()) {
-        consoleOut.innerHTML = "<span style='color:#e74c3c'>Vui lòng nhập đầy đủ code cho cả 3 ô (Generator, Brute-force, Optimized)!</span>";
+        consoleOut.innerHTML = "<span class='text-danger'>Vui lòng nhập đầy đủ code cho cả 3 ô (Generator, Brute-force, Optimized)!</span>";
         return;
     }
 
     // 5. Khóa nút bấm và Hiển thị trạng thái đang chạy
     btnRun.disabled = true;
     btnRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
-    consoleOut.innerHTML = `<span style="color:cyan;">Đang tạo ${testCount} bộ test và kiểm tra đầu ra...</span>`;
+    consoleOut.innerHTML = `<span class="text-info">Đang tạo ${testCount} bộ test và kiểm tra đầu ra...</span>`;
 
     try {
         // 6. Gửi API siêu tốc
@@ -216,47 +226,47 @@ async function runStressTest() {
 
         // 7. Xử lý và In kết quả 
         if (result.verdict === "AC") {
-            consoleOut.innerHTML = `<span style="color:#2ecc71; font-size: 16px;"><b>Accepted! Đã vượt qua ${testCount} test(s)</b></span>`;
+            consoleOut.innerHTML = `<span class="text-success fs-6 fw-bold">Accepted! Đã vượt qua ${testCount} test(s)</span>`;
         } 
         else if (result.verdict === "ERROR") {
-            consoleOut.innerHTML = `<span style="color:#e74c3c;">Lỗi Biên Dịch / Lỗi Hệ Thống:</span><br><pre style="color:#fff;">${result.actual}</pre>`;
+            consoleOut.innerHTML = `<span class="text-danger">Lỗi Biên Dịch / Lỗi Hệ Thống:</span><br><pre class="text-light m-0">${escapeHtml(result.actual)}</pre>`;
         } 
         else {
-            let verdictColor = "#e74c3c"; // Đỏ mặc định (WA, RTE)
+            let verdictClass = "text-danger"; // Đỏ mặc định (WA, RTE)
             let verdictText = result.verdict === "WA" ? "Wrong Answer" : "Runtime Error";
             
             if (result.verdict === "TLE") {
-                verdictColor = "#f39c12"; // Cam cho TLE
+                verdictClass = "text-warning"; // Cam cho TLE
                 verdictText = "Time Limit Exceeded";
             }
 
             consoleOut.innerHTML = 
-                `<div style="margin-top: 10px; font-family: 'Inter', sans-serif; text-align: left; border-top: 1px dashed #444; padding-top: 12px;">` +
-                    `<div style="margin-bottom: 8px; color: ${verdictColor}; font-size: 16px;">Test: #${result.test}, verdict: ${verdictText}</div>` +
-                    `<div style="margin-bottom: 10px;">` +
-                        `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
-                            `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Input</span>` +
-                            `<span onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);" style="cursor: pointer; color: #aaa; font-size: 11px; border: 1px solid #555; padding: 1px 6px; border-radius: 3px; background: #252526; user-select: none;">Copy</span>` +
+                `<div class="mt-2 pt-3 text-start border-top border-secondary">` +
+                    `<div class="${verdictClass} fs-6 mb-2">Test: #${escapeHtml(result.test)}, verdict: ${verdictText}</div>` +
+                    `<div class="mb-2">` +
+                        `<div class="d-flex justify-content-between align-items-end mb-1">` +
+                            `<span class="fw-bold small text-light">Input</span>` +
+                            `<button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 cp-copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000);">Copy</button>` +
                         `</div>` +
-                        `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${result.input}</pre>` +
+                        `<pre class="cp-result-pre m-0 p-2 bg-dark border border-secondary rounded-1 text-light font-monospace overflow-auto">${escapeHtml(result.input)}</pre>` +
                     `</div>` +
-                    `<div style="margin-bottom: 10px;">` +
-                        `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
-                            `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Output</span>` +
+                    `<div class="mb-2">` +
+                        `<div class="d-flex justify-content-between align-items-end mb-1">` +
+                            `<span class="fw-bold small text-light">Output</span>` +
                         `</div>` +
-                        `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: ${verdictColor}; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${result.actual}</pre>` +
+                        `<pre class="cp-result-pre m-0 p-2 bg-dark border border-secondary rounded-1 ${verdictClass} font-monospace overflow-auto">${escapeHtml(result.actual)}</pre>` +
                     `</div>` +
-                    `<div style="margin-bottom: 10px;">` +
-                        `<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">` +
-                            `<span style="font-weight: bold; font-size: 13px; color: #e0e0e0;">Answer</span>` +
+                    `<div class="mb-2">` +
+                        `<div class="d-flex justify-content-between align-items-end mb-1">` +
+                            `<span class="fw-bold small text-light">Answer</span>` +
                         `</div>` +
-                        `<pre style="margin: 0; padding: 8px; background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #fff; font-family: 'Consolas', monospace; font-size: 13px; overflow-x: auto; white-space: pre;">${result.expected}</pre>` +
+                        `<pre class="cp-result-pre m-0 p-2 bg-dark border border-secondary rounded-1 text-light font-monospace overflow-auto">${escapeHtml(result.expected)}</pre>` +
                     `</div>` +
                 `</div>`;
         }
 
     } catch (err) {
-        consoleOut.innerHTML = `<span style="color:#e74c3c">Lỗi gọi Backend: ${err.message}</span>`;
+        consoleOut.innerHTML = `<span class="text-danger">Lỗi gọi Backend: ${escapeHtml(err.message)}</span>`;
     } finally {
         btnRun.disabled = false;
         btnRun.innerHTML = '<i class="fa-solid fa-play"></i> Run';

@@ -24,6 +24,34 @@
     gap: 8px; 
 }
 
+.legend-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.legend-dot-start {
+    border: 2px solid #2ecc71;
+    background-color: rgba(46, 204, 113, 0.2);
+    box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+}
+
+.legend-dot-target {
+    border: 2px solid #e74c3c;
+    background-color: rgba(231, 76, 60, 0.2);
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}
+
+.legend-dot-visited {
+    background-color: #3498db;
+    opacity: 0.8;
+}
+
+.legend-dot-path {
+    background-color: #f1c40f;
+    box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
+}
+
 /* Khung vẽ Đồ thị & Cạnh */
 .graph-container { 
     position: relative; 

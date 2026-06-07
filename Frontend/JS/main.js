@@ -21,8 +21,28 @@ function toggleSidebar() {
 }
 
 /* 2. QUẢN LÝ POP-UP MODAL */
+function showErrorModal() {
+    const modalEl = document.getElementById('error-modal');
+    if (!modalEl) return;
+
+    if (window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        return;
+    }
+
+    modalEl.style.display = 'flex';
+}
+
 function closeErrorModal() {
-    document.getElementById('error-modal').style.display = 'none';
+    const modalEl = document.getElementById('error-modal');
+    if (!modalEl) return;
+
+    if (window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        return;
+    }
+
+    modalEl.style.display = 'none';
 }
 
 /* 3. HỆ THỐNG KÉO THẢ VÁCH NGĂN (RESIZER) */

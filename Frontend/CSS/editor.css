@@ -12,18 +12,20 @@
     width: 85px; 
 }
 
-.logo-container { 
-    display: flex; 
-    align-items: center; 
-    padding: 15px; 
-    gap: 15px; 
-}
-
 .logo { 
     font-size: 36px; 
     font-weight: bold; 
     color: var(--accent-yellow); 
     margin-bottom: 36px; 
+}
+
+.brand-logo {
+    width: 25px;
+    height: 25px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
 
 .menu-item { 
@@ -61,41 +63,60 @@
     animation: fadeIn 0.3s; 
 }
 
-/* UI Components (Buttons & Selects) */
-.btn { 
-    padding: 8px 16px; 
-    border: none; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    font-weight: 600; 
+/* Bootstrap adapters for the IDE surface */
+.algo-select {
+    width: 100px;
 }
 
-.btn-primary { 
-    background-color: #007acc; 
-    color: white; 
-    margin-left: 10px; 
+.cp-toolbar,
+.cp-toolbar-compact {
+    background: #252526;
+    border: 1px solid #444;
+    border-bottom: none;
 }
 
-.btn-secondary { 
-    background-color: #3e3e42; 
-    color: white; 
-    margin-left: 10px; 
+.cp-toolbar-compact {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #444;
 }
 
-.custom-select { 
-    background-color: #252526; 
-    color: #e0e0e0; 
-    border: 1px solid #444; 
-    padding: 8px 12px; 
-    border-radius: 8px; 
-    font-size: 14px; 
-    outline: none; 
-    cursor: pointer; 
-    transition: border-color 0.2s; 
+.cp-editor-canvas {
+    border: 1px solid #444;
 }
 
-.custom-select:focus { border-color: #007acc; }
-.custom-select option { background-color: #1e1e1e; color: #fff; padding: 10px; }
+.cp-output {
+    background: #1e1e1e;
+    outline: none;
+}
+
+.cp-result-pre {
+    font-size: 13px;
+    white-space: pre;
+}
+
+.cp-copy-btn {
+    font-size: 11px;
+    user-select: none;
+}
+
+.cp-resize-none {
+    resize: none;
+}
+
+.cp-number-input {
+    width: 70px;
+}
+
+.cp-mini-select {
+    min-width: 76px;
+    font-size: 11px;
+}
+
+.test-gen-layout {
+    height: calc(100vh - 40px);
+}
 
 /* Bố cục IDE (Code Editor & Test Gen) */
 .ide-container { 
