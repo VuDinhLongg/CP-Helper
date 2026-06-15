@@ -1,12 +1,48 @@
-/* Reset CSS, Biến môi trường, Layout chính */
-
 :root {
     --bg-main: #3e3d32;
     --bg-sidebar: #222222;
     --bg-content: #1e1e1e;
     --text-primary: #ffffff;
-    --text-muted: #cccccc;
+    --text-muted: #aaaaaa;
     --accent-yellow: #FFD700;
+    --cp-panel: #252526;
+    --cp-active: #333333;
+    --cp-surface: #1e1e1e;
+    --cp-surface-deep: #1e1e1e;
+    --cp-border: #444444;
+    --cp-accent: #008000;
+    --cp-accent-hover: #006f00;
+    --cp-primary: #007acc;
+    --cp-primary-hover: #006bb3;
+    --cp-danger: #a33a35;
+    --cp-danger-hover: #8f302c;
+    --cp-muted-btn: #7f8c8f;
+    --cp-muted-btn-hover: #6f7d80;
+}
+
+[data-bs-theme="dark"] {
+    --bs-body-bg: var(--bg-content);
+    --bs-body-color: var(--text-primary);
+    --bs-tertiary-bg: var(--cp-panel);
+    --bs-dark-rgb: 30, 30, 30;
+    --bs-secondary-rgb: 127, 140, 143;
+    --bs-border-color: var(--cp-border);
+}
+
+[data-bs-theme="warm"] {
+    --bg-main: #efe0b8;
+    --bg-sidebar: #3a3025;
+    --bg-content: #f7edcf;
+    --text-primary: #111111;
+    --text-muted: #111111;
+    --accent-yellow: #b7791f;
+    --bs-body-bg: #f7edcf;
+    --bs-body-color: #111111;
+    --bs-tertiary-bg: #fff7e6;
+    --bs-dark-rgb: 255, 248, 225;
+    --bs-light-rgb: 51, 40, 29;
+    --bs-secondary-rgb: 111, 96, 76;
+    --bs-border-color: #d6bf91;
 }
 
 * { 
@@ -23,7 +59,103 @@ body {
     overflow: hidden; 
 }
 
-/* Thanh Cuộn (Scrollbar) chuẩn IDE Dark Theme */
+[data-bs-theme="dark"] .border-secondary {
+    border-color: var(--cp-border) !important;
+}
+
+[data-bs-theme="dark"] .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+[data-bs-theme="dark"] .form-label {
+    color: var(--text-muted);
+}
+
+[data-bs-theme="dark"] .btn-primary {
+    --bs-btn-bg: var(--cp-primary);
+    --bs-btn-border-color: var(--cp-primary);
+    --bs-btn-hover-bg: var(--cp-primary-hover);
+    --bs-btn-hover-border-color: var(--cp-primary-hover);
+    --bs-btn-active-bg: var(--cp-primary-hover);
+    --bs-btn-active-border-color: var(--cp-primary-hover);
+}
+
+[data-bs-theme="dark"] .btn-success {
+    --bs-btn-bg: var(--cp-accent);
+    --bs-btn-border-color: var(--cp-accent);
+    --bs-btn-hover-bg: var(--cp-accent-hover);
+    --bs-btn-hover-border-color: var(--cp-accent-hover);
+    --bs-btn-active-bg: var(--cp-accent-hover);
+    --bs-btn-active-border-color: var(--cp-accent-hover);
+    --bs-btn-disabled-color: #ffffff;
+    --bs-btn-disabled-bg: var(--cp-accent);
+    --bs-btn-disabled-border-color: var(--cp-accent);
+    --bs-btn-disabled-opacity: 1;
+}
+
+[data-bs-theme="dark"] .btn-danger {
+    --bs-btn-bg: var(--cp-danger);
+    --bs-btn-border-color: var(--cp-danger);
+    --bs-btn-hover-bg: var(--cp-danger-hover);
+    --bs-btn-hover-border-color: var(--cp-danger-hover);
+    --bs-btn-active-bg: var(--cp-danger-hover);
+    --bs-btn-active-border-color: var(--cp-danger-hover);
+}
+
+[data-bs-theme="dark"] .btn-secondary {
+    --bs-btn-bg: var(--cp-muted-btn);
+    --bs-btn-border-color: var(--cp-muted-btn);
+    --bs-btn-hover-bg: var(--cp-muted-btn-hover);
+    --bs-btn-hover-border-color: var(--cp-muted-btn-hover);
+    --bs-btn-active-bg: var(--cp-muted-btn-hover);
+    --bs-btn-active-border-color: var(--cp-muted-btn-hover);
+}
+
+[data-bs-theme="dark"] .btn-primary.border-secondary {
+    border-color: var(--cp-primary) !important;
+}
+
+[data-bs-theme="dark"] .btn-success.border-secondary {
+    border-color: var(--cp-accent) !important;
+}
+
+[data-bs-theme="dark"] .btn-danger.border-secondary {
+    border-color: var(--cp-danger) !important;
+}
+
+[data-bs-theme="dark"] .btn-secondary.border-secondary {
+    border-color: var(--cp-muted-btn) !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary {
+    --bs-btn-color: var(--text-muted);
+    --bs-btn-border-color: var(--cp-muted-btn);
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-hover-bg: var(--cp-muted-btn);
+    --bs-btn-hover-border-color: var(--cp-muted-btn);
+    --bs-btn-active-color: #ffffff;
+    --bs-btn-active-bg: var(--cp-muted-btn);
+    --bs-btn-active-border-color: var(--cp-muted-btn);
+}
+
+[data-bs-theme="warm"] .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+[data-bs-theme="warm"] .border-secondary {
+    border-color: #d6bf91 !important;
+}
+
+[data-bs-theme="warm"] .btn-outline-secondary {
+    --bs-btn-color: #5e4a31;
+    --bs-btn-border-color: #9d7d4d;
+    --bs-btn-hover-bg: #ead5a5;
+    --bs-btn-hover-border-color: #8b6b3f;
+    --bs-btn-active-bg: #d9b874;
+    --bs-btn-active-border-color: #8b6b3f;
+    --bs-btn-active-color: #2f2518;
+}
+
 ::-webkit-scrollbar { 
     width: 12px; height: 12px; 
 }
@@ -39,7 +171,19 @@ body {
     background: #4f4f4f; 
 }
 
-/* Layout Chính */
+[data-bs-theme="warm"] ::-webkit-scrollbar-track {
+    background: #f7edcf;
+}
+
+[data-bs-theme="warm"] ::-webkit-scrollbar-thumb {
+    background: #c9ad78;
+    border-color: #f7edcf;
+}
+
+[data-bs-theme="warm"] ::-webkit-scrollbar-thumb:hover {
+    background: #b89255;
+}
+
 .app-container { 
     display: flex; 
     height: 100%; 
@@ -47,6 +191,8 @@ body {
 
 .content { 
     flex: 1; 
+    min-width: 0;
+    min-height: 0;
     background-color: var(--bg-content); 
     padding: 20px; 
     overflow-y: auto; 
@@ -58,35 +204,49 @@ header {
     align-items: center; 
     margin-bottom: 20px; 
     padding-bottom: 10px; 
-    border-bottom: 1px solid #333; 
+    border-bottom: 1px solid var(--cp-border);
 }
 
-/* Resizer (Thanh kéo thả chia cột/hàng) */
+[data-bs-theme="warm"] header {
+    border-bottom-color: #d6bf91;
+}
+
 .resizer { 
     width: 4px; 
-    background-color: #444; 
+    background-color: var(--cp-border);
     cursor: col-resize; 
     transition: background-color 0.2s; 
     z-index: 10; 
 }
 
 .resizer:hover, .resizer.resizing { 
-    background-color: #007acc; 
+    background-color: var(--cp-muted-btn);
 }
 
 .resizer-h { 
     height: 4px; 
-    background-color: #444; 
+    background-color: var(--cp-border);
     cursor: row-resize; 
     transition: background-color 0.2s; 
     z-index: 10; 
 }
 
 .resizer-h:hover, .resizer-h.resizing { 
-    background-color: #007acc; 
+    background-color: var(--cp-muted-btn);
 }
 
-/* Modal Báo Lỗi (Pop-up chung cho cả hệ thống) */
+[data-bs-theme="warm"] .resizer,
+[data-bs-theme="warm"] .resizer-h {
+    background-color: #c9ad78;
+}
+
+[data-bs-theme="warm"] .resizer:hover,
+[data-bs-theme="warm"] .resizer.resizing,
+[data-bs-theme="warm"] .resizer-h:hover,
+[data-bs-theme="warm"] .resizer-h.resizing {
+    background-color: #b7791f;
+}
+
 #modal-error-text { 
     color: #e74c3c; 
     font-family: 'Consolas', monospace; 

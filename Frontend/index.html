@@ -10,22 +10,35 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/editor.css">
-    <link rel="stylesheet" href="css/visualizer.css">
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/editor.css">
+    <link rel="stylesheet" href="CSS/visualizer.css">
 </head>
 
 <body data-bs-theme="dark">
     <div class="app-container">
         <aside class="sidebar" id="sidebar">
             <div class="logo-container d-flex align-items-center gap-3 p-3">
-                <button class="btn btn-link text-secondary fs-5 p-0 border-0 text-decoration-none" onclick="toggleSidebar()">
+                <button class="btn btn-link text-secondary fs-5 p-0 border-0 text-decoration-none" onclick="toggleSidebar()" aria-label="Toggle sidebar" title="Toggle sidebar">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 
                 <div class="brand-wrapper d-flex align-items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
                     <img class="brand-logo object-fit-contain" src="https://cdn.iconscout.com/icon/free/png-256/codeforces-3521352-2944796.png" alt="CF Logo">
                     <span id="logo-text" class="text-warning fs-4 fw-bold">CP Helper</span>
+                </div>
+            </div>
+
+            <div class="theme-switcher px-3 pb-2">
+                <div class="btn-group w-100" role="group" aria-label="Theme selector">
+                    <button type="button" class="btn btn-sm btn-outline-secondary active" data-theme-option="dark" title="Nền tối">
+                        <i class="fa-solid fa-moon"></i>
+                        <span class="menu-text ms-1">Tối</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-theme-option="warm" title="Nền vàng ấm">
+                        <i class="fa-solid fa-sun"></i>
+                        <span class="menu-text ms-1">Ấm</span>
+                    </button>
                 </div>
             </div>
             
@@ -47,11 +60,11 @@
 
         <main class="content">
             <div id="visualizer" class="tab-content active">
-                <header class="mb-2">
+                <header class="mb-1">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <h2 class="h4 mb-0 d-flex align-items-center gap-2"><i class="fa-brands fa-slack"></i> Algo Visualizer</h2>
+                        <h2 class="h4 mb-0 d-flex align-items-center gap-2"><i class="fa-brands fa-slack"></i> Algorithm Visualizer</h2>
                         
-                        <select id="algo-select" class="form-select form-select-sm bg-dark text-light border-secondary fw-bold algo-select"
+                        <select id="algo-select" class="form-select form-select-sm bg-dark text-light border-secondary fw-bold algo-select" aria-label="Algorithm" title="Algorithm"
                             onfocus="this.style.width='auto'; this.options[0].text='Tìm kiếm theo chiều rộng (BFS)'; this.options[1].text='Tìm kiếm theo chiều sâu (DFS)'; this.options[2].text='Tìm đường đi ngắn nhất (Dijkstra)';" 
                             onblur="this.style.width='auto'; this.options[0].text='BFS'; this.options[1].text='DFS'; this.options[2].text='Dijkstra'; this.dataset.open='false';" 
                             onchange="this.dataset.changed='true'; this.blur();"
@@ -61,7 +74,7 @@
                             <option value="dijkstra">Dijkstra</option>
                         </select>
 
-                        <select id="speed-select" class="form-select form-select-sm bg-dark text-light border-secondary fw-bold w-auto">
+                        <select id="speed-select" class="form-select form-select-sm bg-dark text-light border-secondary fw-bold w-auto" aria-label="Animation speed" title="Animation speed">
                             <option value="fast">Nhanh</option>
                             <option value="normal" selected>Thường</option>
                             <option value="slow">Chậm</option>
@@ -73,14 +86,12 @@
                             Chạy thuật toán
                         </button>
                         
-                        <div class="btn-group-vertical border border-secondary rounded-2 overflow-hidden">
-                            <button class="btn btn-danger btn-sm rounded-0 border-bottom border-secondary py-1 px-3" onclick="clearGraph()">
-                                Xóa toàn bộ đồ thị
-                            </button>
-                            <button class="btn btn-secondary btn-sm rounded-0 py-1 px-3" onclick="clearPaths()">
-                                Xóa màu duyệt
-                            </button>
-                        </div>
+                        <button class="btn btn-danger btn-sm fw-bold m-0" onclick="clearGraph()">
+                            Xóa toàn bộ đồ thị
+                        </button>
+                        <button class="btn btn-secondary btn-sm fw-bold m-0" onclick="clearPaths()">
+                            Xóa màu duyệt
+                        </button>
                     </div>
                 </header>
                 
@@ -103,12 +114,12 @@
                     </div>
                 </div>
 
-                <div class="graph-editor-layout">
-                    <div class="edge-list-sidebar flex-shrink-0">
-                        <div class="bg-body-tertiary p-3 border border-secondary rounded-2 flex-fill d-flex flex-column">
+                <div class="graph-editor-layout row align-items-stretch">
+                    <div class="edge-list-sidebar col-lg-4 col-xl-3">
+                        <div class="edge-list-panel bg-body-tertiary p-3 border border-secondary rounded-2 h-100 d-flex flex-column">
                             <label class="form-label text-secondary small fw-bold mb-2"> Danh sách cạnh</label>
                             
-                            <textarea id="edge-list-input" class="form-control bg-dark text-light border-secondary font-monospace flex-fill mb-1 cp-resize-none" placeholder="Ví dụ:&#10;(Không có trọng số)&#10;1 2&#10;1 3&#10;2 4&#10;&#10;(Có trọng số)&#10;1 2 3&#10;1 3 6&#10;2 4 7"></textarea>
+                            <textarea id="edge-list-input" class="form-control bg-dark text-light border-secondary font-monospace flex-fill mb-1 cp-resize-none" placeholder="Ví dụ:&#10;(Không trọng số)&#10;1 2&#10;1 3&#10;2 4&#10;&#10;(Có trọng số)&#10;1 2 3&#10;1 3 6&#10;2 4 7"></textarea>
                             
                             <div class="d-flex gap-2 mb-2">
                                 <div class="flex-fill">
@@ -117,7 +128,7 @@
                                 </div>
                                 <div class="flex-fill">
                                     <label class="form-label text-danger small fw-bold mb-1">Đích đến:</label>
-                                    <input type="text" id="target-node-input" class="form-control form-control-sm bg-dark text-light border-secondary font-monospace text-center" placeholder="VD: 4">
+                                    <input type="text" id="target-node-input" class="form-control form-control-sm bg-dark text-muted border-secondary font-monospace text-center" placeholder="VD: 4">
                                 </div>
                             </div>
 
@@ -127,11 +138,13 @@
                         </div>
                     </div>
 
-                    <div id="graph-container" class="graph-container flex-grow-1 mt-0">
-                        <div id="algo-status-box" class="algo-status-overlay">
-                            Chờ chạy thuật toán...
+                    <div class="col-lg-8 col-xl-9">
+                        <div id="graph-container" class="graph-container mt-0">
+                            <div id="algo-status-box" class="algo-status-overlay">
+                                Chờ chạy thuật toán...
+                            </div>
+                            <svg id="edges-svg" class="edges-svg"></svg>
                         </div>
-                        <svg id="edges-svg" class="edges-svg"></svg>
                     </div>
                 </div>
             </div>
@@ -140,7 +153,7 @@
                 <header class="mb-1">
                     <h2 class="h4 mb-0 d-flex align-items-center gap-2"><i class="fa-solid fa-laptop"></i> Code Editor</h2>
                     <div class="actions d-flex align-items-center gap-2">
-                        <select id="lang-select" class="form-select form-select-sm bg-dark text-light border-secondary w-auto" onchange="changeLanguage()">
+                        <select id="lang-select" class="form-select form-select-sm bg-dark text-light border-secondary w-auto" onchange="changeLanguage()" aria-label="Editor language" title="Editor language">
                             <option value="cpp">C++</option>
                             <option value="java">Java</option>
                             <option value="python">Python</option>
@@ -152,20 +165,20 @@
                 </header>
                 
                 <div class="ide-container">
-                    <div id="main-editor-col" class="editor-section" style="width: 60%;">
+                    <div id="main-editor-col" class="editor-section cp-main-editor-col">
                         <div class="cp-toolbar d-flex align-items-center justify-content-between px-3 py-2">
-                            <span id="file-name" class="text-secondary small fw-bold">Main.cpp</span>
-                            <span id="lang-label" class="text-secondary small fw-bold">C++</span>
+                            <span id="file-name" class="text-light small fw-bold">Main.cpp</span>
+                            <span id="lang-label" class="text-light small fw-bold">C++</span>
                         </div>
                         <div id="monaco-editor" class="cp-editor-canvas flex-fill"></div>
                     </div>
 
                     <div class="resizer" id="resizer-ide-v"></div>
 
-                    <div id="io-col" class="io-section" style="width: 40%;">
+                    <div id="io-col" class="io-section cp-io-col">
                         <div id="input-row" class="input-area h-50">
                             <div class="cp-toolbar d-flex align-items-center justify-content-between px-3 py-2">
-                                <span class="text-secondary small fw-bold">Input</span>
+                                <span class="text-light small fw-bold">Input</span>
                             </div>
                             <textarea id="user-input" class="form-control bg-dark text-light border-secondary font-monospace flex-fill rounded-0 cp-resize-none" placeholder="Nhập input cho chương trình vào đây..."></textarea>
                         </div>
@@ -174,7 +187,7 @@
 
                         <div id="output-row" class="output-area h-50">
                             <div class="cp-toolbar d-flex align-items-center justify-content-between px-3 py-2">
-                                <span class="text-secondary small fw-bold">Output</span>
+                                <span class="text-light small fw-bold">Output</span>
                             </div>
                             <pre id="output-console" class="cp-output flex-fill text-secondary border border-secondary p-2 overflow-auto font-monospace m-0">Nhấn nút Run để hiển thị kết quả...</pre>
                         </div>
@@ -189,13 +202,13 @@
                         <h2 class="h4 mb-0 d-flex align-items-center gap-2"><i class="fa-solid fa-bug"></i> Test Generator</h2>
                         <div class="actions d-flex gap-3 align-items-center flex-wrap">
                             <div class="d-flex align-items-center gap-2">
-                                <label class="form-label text-light small fw-bold mb-0">Giới hạn thời gian (ms):</label>
-                                <input type="number" id="time-limit" class="form-control form-control-sm bg-dark text-light border-secondary font-monospace cp-number-input" value="1000" min="100" max="10000" step="100">
+                                <label for="time-limit" class="form-label text-light small fw-bold mb-0">Giới hạn thời gian (ms):</label>
+                                <input type="number" id="time-limit" class="form-control form-control-sm bg-dark text-light border-secondary font-monospace cp-number-input" value="1000" min="100" max="10000" step="100" title="Time limit in milliseconds">
                             </div>
 
                             <div class="d-flex align-items-center gap-2">
-                                <label class="form-label text-light small fw-bold mb-0">Số Test:</label>
-                                <input type="number" id="test-count" class="form-control form-control-sm bg-dark text-light border-secondary font-monospace cp-number-input" value="100" min="1" max="1000">
+                                <label for="test-count" class="form-label text-light small fw-bold mb-0">Số lượng Test:</label>
+                                <input type="number" id="test-count" class="form-control form-control-sm bg-dark text-light border-secondary font-monospace cp-number-input" value="100" min="1" max="1000" title="Number of tests">
                             </div>
                             
                             <button id="btnRunStress" class="btn btn-success btn-sm fw-bold px-4" onclick="runStressTest()">
@@ -208,12 +221,12 @@
                         
                         <div id="stress-editors-row" class="stress-editors-container">
                             
-                            <div id="col-gen" class="editor-section" style="width: 33.33%;">
+                            <div id="col-gen" class="editor-section cp-stress-editor-col">
                                 <div class="cp-toolbar-compact d-flex justify-content-between align-items-center px-3 py-1">
                                     <span class="text-info small fw-bold"> Generator</span>
-                                    <select id="lang-gen" class="form-select form-select-sm bg-dark text-light border-secondary w-auto cp-mini-select" onchange="changeTestLang('gen')">
-                                        <option value="python" selected>Python</option>
-                                        <option value="cpp">C++</option>
+                                    <select id="lang-gen" class="form-select form-select-sm bg-dark text-light border-secondary w-auto cp-mini-select" onchange="changeTestLang('gen')" aria-label="Generator language" title="Generator language">
+                                        <option value="cpp" selected>C++</option>
+                                        <option value="python">Python</option>
                                         <option value="java">Java</option>
                                     </select>
                                 </div>
@@ -222,10 +235,10 @@
 
                             <div class="resizer" id="resizer-1"></div>
 
-                            <div id="col-brute" class="editor-section" style="width: 33.33%;">
+                            <div id="col-brute" class="editor-section cp-stress-editor-col">
                                 <div class="cp-toolbar-compact d-flex justify-content-between align-items-center px-3 py-1">
                                     <span class="text-success small fw-bold"> Brute-force</span>
-                                    <select id="lang-brute" class="form-select form-select-sm bg-dark text-light border-secondary w-auto cp-mini-select" onchange="changeTestLang('brute')">
+                                    <select id="lang-brute" class="form-select form-select-sm bg-dark text-light border-secondary w-auto cp-mini-select" onchange="changeTestLang('brute')" aria-label="Brute-force language" title="Brute-force language">
                                         <option value="cpp" selected>C++</option>
                                         <option value="python">Python</option>
                                         <option value="java">Java</option>
@@ -236,10 +249,10 @@
 
                             <div class="resizer" id="resizer-2"></div>
 
-                            <div id="col-opt" class="editor-section" style="width: 33.33%;">
+                            <div id="col-opt" class="editor-section cp-stress-editor-col">
                                 <div class="cp-toolbar-compact d-flex justify-content-between align-items-center px-3 py-1">
                                     <span class="text-warning small fw-bold"> Optimized</span>
-                                    <select id="lang-opt" class="form-select form-select-sm bg-dark text-light border-secondary w-auto cp-mini-select" onchange="changeTestLang('opt')">
+                                    <select id="lang-opt" class="form-select form-select-sm bg-dark text-light border-secondary w-auto cp-mini-select" onchange="changeTestLang('opt')" aria-label="Optimized language" title="Optimized language">
                                         <option value="cpp" selected>C++</option>
                                         <option value="python">Python</option>
                                         <option value="java">Java</option>
@@ -254,7 +267,7 @@
 
                         <div id="stress-console-row" class="stress-output-container">
                             <div class="cp-toolbar-compact d-flex justify-content-between px-3 py-2">
-                                <span class="text-info small fw-bold"> Console</span>
+                                <span class="text-danger small fw-bold"> Console</span>
                             </div>
                             <pre id="stress-console" class="cp-output flex-fill text-secondary p-3 overflow-auto font-monospace m-0">Nhấn nút Run để bắt đầu kiểm tra...</pre>
                         </div>
@@ -284,9 +297,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/visualizer.js"></script>
-    <script src="js/editor.js"></script>
+    <script src="JS/main.js"></script>
+    <script src="JS/visualizer.js"></script>
+    <script src="JS/editor.js"></script>
 </body>
 
 </html>

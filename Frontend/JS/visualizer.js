@@ -1,278 +1,446 @@
 class MinHeap {
     constructor() {
-        this.heap = []; // Mảng lưu các node { id, dist }
+        this.heap = [];
     }
 
-    // Trả về size
-    size() { return this.heap.length; }
+    size() {
+        return this.heap.length;
+    }
 
-    // Xem phần tử nhỏ nhất mà không lấy ra
-    peek() { return this.heap[0]; }
-
-    // Thêm phần tử mới vào heap, rồi "nổi" lên đúng vị trí
     push(node) {
         this.heap.push(node);
-        this._bubbleUp(this.heap.length - 1);
+        this.bubbleUp(this.heap.length - 1);
     }
 
-    // Lấy phần tử nhỏ nhất ra, rồi "chìm" root mới xuống đúng vị trí
     pop() {
         const top = this.heap[0];
         const last = this.heap.pop();
+
         if (this.heap.length > 0) {
             this.heap[0] = last;
-            this._sinkDown(0);
+            this.sinkDown(0);
         }
+
         return top;
     }
 
-    // Đẩy node tại index i lên trên nếu nhỏ hơn cha
-    _bubbleUp(i) {
-        while (i > 0) {
-            const parent = Math.floor((i - 1) / 2);
-            if (this.heap[parent].dist <= this.heap[i].dist) break;
-            [this.heap[parent], this.heap[i]] = [this.heap[i], this.heap[parent]];
-            i = parent;
+    bubbleUp(index) {
+        let current = index;
+
+        while (current > 0) {
+            const parent = Math.floor((current - 1) / 2);
+            if (this.heap[parent].dist <= this.heap[current].dist) break;
+
+            [this.heap[parent], this.heap[current]] = [this.heap[current], this.heap[parent]];
+            current = parent;
         }
     }
 
-    // Đẩy node tại index i xuống dưới nếu lớn hơn con
-    _sinkDown(i) {
-        const n = this.heap.length;
+    sinkDown(index) {
+        let current = index;
+        const length = this.heap.length;
+
         while (true) {
-            let smallest = i;
-            const left  = 2 * i + 1;
-            const right = 2 * i + 2;
-            if (left  < n && this.heap[left].dist  < this.heap[smallest].dist) smallest = left;
-            if (right < n && this.heap[right].dist < this.heap[smallest].dist) smallest = right;
-            if (smallest === i) break;
-            [this.heap[smallest], this.heap[i]] = [this.heap[i], this.heap[smallest]];
-            i = smallest;
+            let smallest = current;
+            const left = 2 * current + 1;
+            const right = 2 * current + 2;
+
+            if (left < length && this.heap[left].dist < this.heap[smallest].dist) {
+                smallest = left;
+            }
+
+            if (right < length && this.heap[right].dist < this.heap[smallest].dist) {
+                smallest = right;
+            }
+
+            if (smallest === current) break;
+
+            [this.heap[smallest], this.heap[current]] = [this.heap[current], this.heap[smallest]];
+            current = smallest;
         }
     }
 }
 
-const container = document.getElementById('graph-container');
-let svg = document.getElementById('edges-svg');
 
-let nodes = {}, edges = [], adjList = {};
-let nodeIdCounter = 0, startNodeId = null, targetNodeId = null;
-let isAnimating = false, draggingNodeId = null;
+let container = null;
+let svg = null;
+let nodes = {};
+let edges = [];
+let adjList = {};
+let nodeIdCounter = 0;
+let startNodeId = null;
+let targetNodeId = null;
+let isAnimating = false;
+let draggingNodeId = null;
+
+
+function escapeVisualizerHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+    })[char]);
+}
+
+
+function showVisualizerStatus(html, tone = 'info') {
+    const statusBox = document.getElementById('algo-status-box');
+    if (!statusBox) return;
+
+    const colors = {
+        error: '#e74c3c',
+        success: '#2ecc71',
+        warning: '#f1c40f',
+        info: '#e0e0e0',
+    };
+
+    statusBox.style.display = 'block';
+    statusBox.innerHTML = `<span style="color: ${colors[tone] || colors.info}; font-weight: bold;">${html}</span>`;
+}
+
+
+function getNodeDisplayName(id) {
+    return escapeVisualizerHtml(nodes[id]?.el?.textContent ?? id);
+}
+
+
+function getSpeedDelay() {
+    const speed = document.getElementById('speed-select')?.value;
+    if (speed === 'fast') return 500;
+    if (speed === 'slow') return 1500;
+    return 1000;
+}
+
+
+function syncEdgeWeightLabels() {
+    const shouldShowWeight = document.getElementById('algo-select')?.value === 'dijkstra';
+    edges.forEach((edge) => {
+        if (edge.textEl) {
+            edge.textEl.textContent = shouldShowWeight ? edge.w : '';
+        }
+    });
+}
+
+
+function graphHasInvalidDijkstraWeight() {
+    return edges.some((edge) => !Number.isFinite(edge.w) || edge.w < 0);
+}
+
+
+function resetGraphState() {
+    nodes = {};
+    edges = [];
+    adjList = {};
+    nodeIdCounter = 0;
+    startNodeId = null;
+    targetNodeId = null;
+    draggingNodeId = null;
+}
+
 
 function clearGraph() {
-    if (isAnimating) return;
-    
-    // Cập nhật: Khi xóa đồ thị, phải giữ lại cả bảng Status Box và thẻ SVG
+    if (isAnimating || !container) return;
+
     container.innerHTML = `
         <div id="algo-status-box" class="algo-status-overlay"></div>
         <svg id="edges-svg" class="edges-svg"></svg>
     `;
-    
+
     svg = document.getElementById('edges-svg');
-    nodes = {}; edges = []; adjList = {}; 
-    nodeIdCounter = 0; startNodeId = null; targetNodeId = null;
-    draggingNodeId = null;
+    resetGraphState();
 }
 
-document.addEventListener('DOMContentLoaded', clearGraph);
 
-function addNode(x, y, type = 'normal', customLabel = null) {
+function clearPaths() {
+    if (isAnimating) return;
+
+    Object.values(nodes).forEach((node) => node.el.classList.remove('visited', 'path'));
+    edges.forEach((edge) => {
+        edge.el.classList.remove('path');
+        edge.el.style.stroke = '';
+    });
+
+    const statusBox = document.getElementById('algo-status-box');
+    if (statusBox) {
+        statusBox.style.display = 'none';
+    }
+}
+
+
+function addNode(x, y, type = 'normal', label = null) {
     const id = nodeIdCounter++;
-    const el = document.createElement('div');
-    el.className = `vertex ${type}`;
-    el.id = `vertex-${id}`;
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
-    el.textContent = customLabel !== null ? customLabel : id; 
+    const classNames = String(type || 'normal').split(/\s+/).filter(Boolean);
+    const element = document.createElement('div');
 
-    if (type === 'start') startNodeId = id;
-    if (type === 'target') targetNodeId = id;
+    element.className = ['vertex', ...classNames].join(' ');
+    element.id = `vertex-${id}`;
+    element.style.left = `${x}px`;
+    element.style.top = `${y}px`;
+    element.textContent = label !== null ? label : id;
 
-    nodes[id] = { id, x, y, type, el };
+    if (classNames.includes('start')) startNodeId = id;
+    if (classNames.includes('target')) targetNodeId = id;
+
+    nodes[id] = { id, x, y, type: classNames.join(' '), el: element };
     adjList[id] = [];
-    container.appendChild(el);
+    container.appendChild(element);
 
-    el.addEventListener('mousedown', (e) => {
-        if (isAnimating || e.button !== 0) return; 
-        e.stopPropagation();
+    element.addEventListener('mousedown', (event) => {
+        if (isAnimating || event.button !== 0) return;
+        event.stopPropagation();
         draggingNodeId = id;
     });
 
     return id;
 }
 
-// 1. Nâng cấp hàm addEdge để nhận thêm biến w (trọng số)
+
 function addEdge(u, v, w = 1) {
-    // Cập nhật cách kiểm tra trùng cạnh
-    if (adjList[u].some(edge => edge.v === v)) return;
-    
-    // Lưu thẳng trọng số vào Danh sách kề
-    adjList[u].push({ v: v, w: w }); 
-    adjList[v].push({ v: u, w: w }); 
+    if (!adjList[u] || !adjList[v] || !Number.isFinite(w)) return;
+    if (adjList[u].some((edge) => edge.v === v)) return;
+
+    adjList[u].push({ v, w });
+    adjList[v].push({ v: u, w });
 
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.classList.add('edge-line');
     line.id = `edge-${u}-${v}`;
     svg.appendChild(line);
 
-    // Tạo thẻ Text (Chữ) của SVG để hiển thị con số lên màn hình
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    
-    const algo = document.getElementById('algo-select').value;
-    text.textContent = (algo != "dijkstra") ? "" : w; 
-    
-    text.setAttribute('fill', '#ffd700'); 
-    text.setAttribute('font-size', '14px');
-    text.setAttribute('font-weight', 'bold');
-    text.setAttribute('fill', '#ffd700'); // Trọng số hiển thị màu vàng cho nổi bật
+    text.setAttribute('fill', '#ffd700');
     text.setAttribute('font-size', '14px');
     text.setAttribute('font-weight', 'bold');
     text.setAttribute('text-anchor', 'middle');
-    text.style.userSelect = 'none'; // Không cho bôi đen text
-    text.style.pointerEvents = 'none'; // Chuột xuyên qua text để không bị lỗi kéo thả
+    text.style.userSelect = 'none';
+    text.style.pointerEvents = 'none';
     svg.appendChild(text);
 
-    // Lưu cả line và text vào mảng
-    edges.push({ u, v, el: line, textEl: text });
+    edges.push({ u, v, w, el: line, textEl: text });
+    syncEdgeWeightLabels();
     updateEdges();
 }
+
+
+function updateEdgePosition(edge) {
+    const uNode = nodes[edge.u];
+    const vNode = nodes[edge.v];
+    if (!uNode || !vNode) return;
+
+    edge.el.setAttribute('x1', uNode.x);
+    edge.el.setAttribute('y1', uNode.y);
+    edge.el.setAttribute('x2', vNode.x);
+    edge.el.setAttribute('y2', vNode.y);
+
+    const midX = (uNode.x + vNode.x) / 2;
+    const midY = (uNode.y + vNode.y) / 2;
+    const dx = vNode.x - uNode.x;
+    const dy = vNode.y - uNode.y;
+    const length = Math.hypot(dx, dy);
+
+    if (length > 0) {
+        const offset = 8;
+        edge.textEl.setAttribute('x', midX + offset * (-dy / length));
+        edge.textEl.setAttribute('y', midY + offset * (dx / length) + 5);
+        return;
+    }
+
+    edge.textEl.setAttribute('x', midX);
+    edge.textEl.setAttribute('y', midY + 5);
+}
+
 
 function updateEdges() {
-    edges.forEach(edge => {
-        let uNode = nodes[edge.u];
-        let vNode = nodes[edge.v];
-        
-        // Cập nhật vị trí đường thẳng
-        edge.el.setAttribute('x1', uNode.x);
-        edge.el.setAttribute('y1', uNode.y);
-        edge.el.setAttribute('x2', vNode.x);
-        edge.el.setAttribute('y2', vNode.y);
-        
-        // Tính toán điểm chính giữa (Midpoint)
-        let midX = (uNode.x + vNode.x) / 2;
-        let midY = (uNode.y + vNode.y) / 2;
-        
-        // --- CHỈNH SỬA TỌA ĐỘ TEXT TRỌNG SỐ ---
-        
-        // Tính vectơ hiệu
-        let dx = vNode.x - uNode.x;
-        let dy = vNode.y - uNode.y;
-        
-        // Tính độ dài cạnh
-        let length = Math.hypot(dx, dy);
-        
-        // Xử lý trường hợp 2 đỉnh trùng nhau (độ dài bằng 0)
-        if (length > 0) {
-            // Xác định khoảng cách văn bản "dạt" ra khỏi cạnh (tính theo pixel)
-            // Bạn có thể tăng giảm số 18 này để thay đổi khoảng cách
-            let offsetDistance = 8; 
-            
-            // Tính toán vectơ pháp tuyến (Normal vector) vuông góc với cạnh.
-            // Công thức: Normal = (-dy, dx). Chúng ta chuẩn hóa (Unit vector).
-            // Vị trí text = Midpoint + (OffsetDistance * UnitNormal)
-            let textX = midX + offsetDistance * (-dy / length);
-            let textY = midY + offsetDistance * (dx / length);
-            
-            edge.textEl.setAttribute('x', textX);
-            edge.textEl.setAttribute('y', textY + 5); // Cộng thêm 5 để căn giữa theo chiều dọc
-        } else {
-            // Nếu độ dài bằng 0, đặt text tại chính giữa đỉnh
-            edge.textEl.setAttribute('x', midX);
-            edge.textEl.setAttribute('y', midY + 5);
+    edges.forEach(updateEdgePosition);
+}
+
+
+function parseEdgeList(text, startInput, targetInput) {
+    const edgesToBuild = [];
+    const uniqueNodes = new Set();
+
+    for (const [lineIndex, rawLine] of text.split('\n').entries()) {
+        const line = rawLine.trim();
+        if (!line) continue;
+
+        const parts = line.split(/\s+/);
+        if (parts.length < 2) {
+            return { error: `Dòng ${lineIndex + 1} cần có ít nhất 2 đỉnh.` };
         }
+
+        const [u, v] = parts;
+        const w = parts.length >= 3 ? Number(parts[2]) : 1;
+        if (!Number.isFinite(w)) {
+            return { error: `Trọng số ở dòng ${lineIndex + 1} không hợp lệ.` };
+        }
+
+        edgesToBuild.push([u, v, w]);
+        uniqueNodes.add(u);
+        uniqueNodes.add(v);
+    }
+
+    if (startInput) uniqueNodes.add(startInput);
+    if (targetInput) uniqueNodes.add(targetInput);
+
+    return { edgesToBuild, uniqueNodes };
+}
+
+
+function fillNumericNodeGaps(uniqueNodes) {
+    let isNumeric = true;
+    let maxNode = 0;
+    let minNode = Infinity;
+
+    uniqueNodes.forEach((node) => {
+        const num = parseInt(node, 10);
+        if (Number.isNaN(num) || String(num) !== String(node)) {
+            isNumeric = false;
+            return;
+        }
+
+        maxNode = Math.max(maxNode, num);
+        minNode = Math.min(minNode, num);
+    });
+
+    if (!isNumeric || maxNode <= 0) return;
+
+    const startIndex = minNode === 0 ? 0 : 1;
+    for (let i = startIndex; i <= maxNode; i++) {
+        uniqueNodes.add(String(i));
+    }
+}
+
+
+function sortNodeNames(uniqueNodes) {
+    return Array.from(uniqueNodes).sort((a, b) => {
+        const numA = Number.parseFloat(a);
+        const numB = Number.parseFloat(b);
+        if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+            return numA - numB;
+        }
+
+        return a.localeCompare(b);
     });
 }
 
-container.addEventListener('mousemove', (e) => {
-    if (isAnimating || draggingNodeId === null) return;
-    const rect = container.getBoundingClientRect();
-    let x = e.clientX - rect.left; 
-    let y = e.clientY - rect.top;
-    
-    nodes[draggingNodeId].x = x; 
-    nodes[draggingNodeId].y = y;
-    nodes[draggingNodeId].el.style.left = `${x}px`; 
-    nodes[draggingNodeId].el.style.top = `${y}px`;
-    
-    updateEdges();
-});
 
-window.addEventListener('mouseup', () => { draggingNodeId = null; });
-
-function getSpeedDelay() {
-    const speed = document.getElementById('speed-select').value;
-    if (speed === 'fast') return 500;   
-    if (speed === 'slow') return 1500;  
-    return 1000;
+function getNodeType(nodeName, startInput, targetInput) {
+    if (nodeName === startInput && nodeName === targetInput) return 'start target';
+    if (nodeName === startInput) return 'start';
+    if (nodeName === targetInput) return 'target';
+    return 'normal';
 }
 
-function clearPaths() {
+
+function buildGridLayout(nodesArray) {
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 550;
+    const count = nodesArray.length;
+    const cols = Math.ceil(Math.sqrt(count));
+    const rows = Math.ceil(count / cols);
+    const margin = 60;
+    const availableWidth = Math.max(0, width - 2 * margin);
+    const availableHeight = Math.max(0, height - 2 * margin);
+    const stepX = cols > 1 ? availableWidth / (cols - 1) : availableWidth / 2;
+    const stepY = rows > 1 ? availableHeight / (rows - 1) : availableHeight / 2;
+
+    return nodesArray.map((nodeName, index) => {
+        const row = Math.floor(index / cols);
+        const col = index % cols;
+
+        return {
+            nodeName,
+            x: cols > 1 ? margin + col * stepX : width / 2,
+            y: rows > 1 ? margin + row * stepY : height / 2,
+        };
+    });
+}
+
+
+function buildGraphFromEdgeList() {
     if (isAnimating) return;
-    Object.values(nodes).forEach(n => n.el.classList.remove('visited', 'path'));
-    edges.forEach(e => {
-        e.el.classList.remove('path');
-        e.el.style.stroke = '#7f8c8d';
+
+    const text = document.getElementById('edge-list-input')?.value.trim() || '';
+    const startInput = document.getElementById('start-node-input')?.value.trim() || '';
+    const targetInput = document.getElementById('target-node-input')?.value.trim() || '';
+
+    if (!text) {
+        showVisualizerStatus('Vui lòng nhập danh sách cạnh trước khi dựng đồ thị.', 'warning');
+        return;
+    }
+
+    const parsed = parseEdgeList(text, startInput, targetInput);
+    if (parsed.error) {
+        showVisualizerStatus(parsed.error, 'error');
+        return;
+    }
+
+    if (parsed.uniqueNodes.size === 0) return;
+
+    fillNumericNodeGaps(parsed.uniqueNodes);
+    clearGraph();
+
+    const nodeMap = {};
+    const nodesArray = sortNodeNames(parsed.uniqueNodes);
+    buildGridLayout(nodesArray).forEach(({ nodeName, x, y }) => {
+        nodeMap[nodeName] = addNode(x, y, getNodeType(nodeName, startInput, targetInput), nodeName);
     });
-    
-    const statusBox = document.getElementById('algo-status-box');
-    if (statusBox) statusBox.style.display = 'none';
+
+    parsed.edgesToBuild.forEach(([u, v, w]) => addEdge(nodeMap[u], nodeMap[v], w));
 }
 
-function startAlgorithm() {
-    if (isAnimating || startNodeId === null || targetNodeId === null) return;
 
-    const btnRun = document.getElementById('btnRunAlgo');
-    if (btnRun) {
-        btnRun.disabled = true; // Khóa nút không cho bấm 2 lần
-        btnRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang chạy...';
-    }
+function createSearchState() {
+    const visited = {};
+    const prev = {};
 
-    const algo = document.getElementById('algo-select').value;
-    clearPaths();
-    
-    // Bật bảng Log lên khi bắt đầu chạy
-    const statusBox = document.getElementById('algo-status-box');
-    if (statusBox) {
-        statusBox.style.display = 'block';
-    }
+    Object.keys(nodes).forEach((id) => {
+        visited[id] = false;
+        prev[id] = null;
+    });
 
-    if (algo === 'bfs') runBFS();
-    else if (algo === 'dfs') runDFS();
-    else if (algo === 'dijkstra') runDijkstra();
+    return { visited, prev };
 }
+
 
 function runBFS() {
-    let visited = {}, prev = {};
-    Object.keys(nodes).forEach(id => { visited[id] = false; prev[id] = null; });
-    
-    let queue = [startNodeId];
+    const { visited, prev } = createSearchState();
+    const queue = [startNodeId];
+    const visitedOrder = [];
+    let targetFound = false;
+
     visited[startNodeId] = true;
-    let visitedOrder = [], targetFound = false;
 
     while (queue.length > 0) {
-        let curr = queue.shift();
+        const curr = queue.shift();
         visitedOrder.push(curr);
 
-        if (curr === targetNodeId) { targetFound = true; break; }
+        if (curr === targetNodeId) {
+            targetFound = true;
+            break;
+        }
 
-        adjList[curr].forEach(edge => {
-            let neighbor = edge.v; // Trích xuất đỉnh kề
-            if (!visited[neighbor]) {
-                visited[neighbor] = true; prev[neighbor] = curr;
-                queue.push(neighbor);
-            }
+        adjList[curr].forEach((edge) => {
+            const neighbor = edge.v;
+            if (visited[neighbor]) return;
+
+            visited[neighbor] = true;
+            prev[neighbor] = curr;
+            queue.push(neighbor);
         });
     }
+
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
 
+
 function runDFS() {
-    let visited = {}, prev = {};
-    Object.keys(nodes).forEach(id => { visited[id] = false; prev[id] = null; });
+    const { visited, prev } = createSearchState();
+    const visitedOrder = [];
+    let targetFound = false;
 
-    let visitedOrder = [], targetFound = false;
-
-    // Hàm đệ quy nội bộ — trả về true nếu tìm thấy target
     function dfs(curr) {
         if (targetFound) return;
 
@@ -289,8 +457,8 @@ function runDFS() {
             if (!visited[neighbor]) {
                 prev[neighbor] = curr;
                 dfs(neighbor);
-                if (targetFound) return;
             }
+            if (targetFound) return;
         }
     }
 
@@ -298,235 +466,207 @@ function runDFS() {
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
 
+
 function runDijkstra() {
-    let visited = {}, prev = {}, dist = {};
-    Object.keys(nodes).forEach(id => { visited[id] = false; prev[id] = null; dist[id] = Infinity; });
+    const visited = {};
+    const prev = {};
+    const dist = {};
+    const pq = new MinHeap();
+    const visitedOrder = [];
+    let targetFound = false;
+
+    Object.keys(nodes).forEach((id) => {
+        visited[id] = false;
+        prev[id] = null;
+        dist[id] = Infinity;
+    });
 
     dist[startNodeId] = 0;
-
-    const pq = new MinHeap();
     pq.push({ id: startNodeId, dist: 0 });
-
-    let visitedOrder = [], targetFound = false;
 
     while (pq.size() > 0) {
         const { id: curr } = pq.pop();
-
         if (visited[curr]) continue;
+
         visited[curr] = true;
         visitedOrder.push(curr);
 
-        if (curr === targetNodeId) { targetFound = true; break; }
+        if (curr === targetNodeId) {
+            targetFound = true;
+            break;
+        }
 
-        adjList[curr].forEach(edge => {
+        adjList[curr].forEach((edge) => {
             const neighbor = edge.v;
-            const weight   = edge.w;
+            const nextDist = dist[curr] + edge.w;
+            if (visited[neighbor] || nextDist >= dist[neighbor]) return;
 
-            if (!visited[neighbor]) {
-                const newDist = dist[curr] + weight;
-                if (newDist < dist[neighbor]) {
-                    dist[neighbor]  = newDist;
-                    prev[neighbor]  = curr;
-                    pq.push({ id: neighbor, dist: newDist });
-                }
-            }
+            dist[neighbor] = nextDist;
+            prev[neighbor] = curr;
+            pq.push({ id: neighbor, dist: nextDist });
         });
     }
 
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
 
+
 function getShortestPath(prev, target) {
-    let path = [], curr = target;
-    while(curr !== null) {
+    const path = [];
+    let curr = target;
+
+    while (curr !== null) {
         path.unshift(curr);
         curr = prev[curr];
     }
+
     return path;
 }
 
-function animateAlgorithm(visitedOrder, pathNodes, prev) {
-    isAnimating = true; 
-    const delay = getSpeedDelay();
-    const statusBox = document.getElementById('algo-status-box');
 
-    for (let i = 0; i <= visitedOrder.length; i++) {
-        if (i === visitedOrder.length) {
-            setTimeout(() => { animateShortestPath(pathNodes); }, delay * i);
-            return;
+function startAlgorithm() {
+    if (isAnimating) return;
+
+    const algo = document.getElementById('algo-select')?.value;
+    clearPaths();
+
+    if (startNodeId === null || targetNodeId === null) {
+        showVisualizerStatus('Vui lòng nhập cả đỉnh xuất phát và đích đến.', 'warning');
+        return;
+    }
+
+    if (algo === 'dijkstra' && graphHasInvalidDijkstraWeight()) {
+        showVisualizerStatus('Dijkstra chỉ hỗ trợ trọng số không âm và hợp lệ.', 'error');
+        return;
+    }
+
+    const btnRun = document.getElementById('btnRunAlgo');
+    if (btnRun) {
+        btnRun.disabled = true;
+        btnRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang chạy...';
+    }
+
+    document.getElementById('algo-status-box')?.style.setProperty('display', 'block');
+
+    if (algo === 'bfs') runBFS();
+    if (algo === 'dfs') runDFS();
+    if (algo === 'dijkstra') runDijkstra();
+}
+
+
+function setTraversalStatus(prev, curr) {
+    const statusBox = document.getElementById('algo-status-box');
+    if (!statusBox) return;
+
+    if (prev !== null) {
+        const edgeEl = document.getElementById(`edge-${prev}-${curr}`) || document.getElementById(`edge-${curr}-${prev}`);
+        if (edgeEl) {
+            edgeEl.style.stroke = '#3498db';
         }
 
+        statusBox.innerHTML = `Đang duyệt: <span class="node-highlight">${getNodeDisplayName(prev)}</span> ➔ <span class="node-highlight">${getNodeDisplayName(curr)}</span>`;
+        return;
+    }
+
+    statusBox.innerHTML = `Bắt đầu tại: <span class="node-highlight">${getNodeDisplayName(curr)}</span>`;
+}
+
+
+function animateAlgorithm(visitedOrder, pathNodes, prev) {
+    isAnimating = true;
+    const delay = getSpeedDelay();
+
+    visitedOrder.forEach((curr, index) => {
         setTimeout(() => {
-            const curr = visitedOrder[i];
             if (curr !== startNodeId && curr !== targetNodeId) {
                 nodes[curr].el.classList.add('visited');
             }
-            
-            if (prev[curr] !== null) {
-                let u = prev[curr], v = curr;
-                let edgeEl = document.getElementById(`edge-${u}-${v}`) || document.getElementById(`edge-${v}-${u}`);
-                if (edgeEl) edgeEl.style.stroke = '#3498db';
 
-                // BÁO CÁO: Đang xét từ u sang v
-                if (statusBox) {
-                    let nameU = nodes[u].el.textContent;
-                    let nameV = nodes[v].el.textContent;
-                    statusBox.innerHTML = `Đang duyệt: <span class="node-highlight">${nameU}</span> ➔ <span class="node-highlight">${nameV}</span>`;
-                }
-            } else if (curr === startNodeId) {
-                // BÁO CÁO: Điểm xuất phát
-                if (statusBox) {
-                    let nameStart = nodes[curr].el.textContent;
-                    statusBox.innerHTML = `Bắt đầu tại: <span class="node-highlight">${nameStart}</span>`;
-                }
-            }
-        }, delay * i);
+            setTraversalStatus(prev[curr], curr);
+        }, delay * index);
+    });
+
+    setTimeout(() => animateShortestPath(pathNodes), delay * visitedOrder.length);
+}
+
+
+function finishAnimation(message, tone) {
+    isAnimating = false;
+    showVisualizerStatus(message, tone);
+
+    const btnRun = document.getElementById('btnRunAlgo');
+    if (btnRun) {
+        btnRun.disabled = false;
+        btnRun.innerHTML = 'Chạy thuật toán';
     }
 }
 
-function animateShortestPath(pathNodes) {
-    const statusBox = document.getElementById('algo-status-box');
-    const btnRun = document.getElementById('btnRunAlgo');
 
-    if (pathNodes.length === 0) { 
-        isAnimating = false; 
-        if (statusBox) statusBox.innerHTML = `<span style="color: #e74c3c; font-weight: bold;">Không tìm thấy đường đi!</span>`;
-        
-        if (btnRun) { btnRun.disabled = false; btnRun.innerHTML = 'Chạy thuật toán'; } 
-        return; 
+function animateShortestPath(pathNodes) {
+    if (pathNodes.length === 0) {
+        finishAnimation('Không tìm thấy đường đi!', 'error');
+        return;
     }
 
-    for (let i = 0; i < pathNodes.length; i++) {
+    const pathDelay = getSpeedDelay() / 2;
+
+    pathNodes.forEach((curr, index) => {
         setTimeout(() => {
-            let curr = pathNodes[i];
             if (curr !== startNodeId && curr !== targetNodeId) {
                 nodes[curr].el.classList.add('path');
             }
-            
-            if (i > 0) {
-                let u = pathNodes[i-1], v = curr;
-                let edgeEl = document.getElementById(`edge-${u}-${v}`) || document.getElementById(`edge-${v}-${u}`);
+
+            if (index > 0) {
+                const prevNode = pathNodes[index - 1];
+                const edgeEl = document.getElementById(`edge-${prevNode}-${curr}`) || document.getElementById(`edge-${curr}-${prevNode}`);
                 if (edgeEl) {
                     edgeEl.classList.add('path');
-                    edgeEl.style.stroke = ''; 
+                    edgeEl.style.stroke = '';
                 }
-                
+
+                const statusBox = document.getElementById('algo-status-box');
                 if (statusBox) {
-                    let nameU = nodes[u].el.textContent;
-                    let nameV = nodes[v].el.textContent;
-                    statusBox.innerHTML = `Truy vết: <span style="color:#f1c40f; font-weight:bold;">${nameU}</span> ➔ <span style="color:#f1c40f; font-weight:bold;">${nameV}</span>`;
+                    statusBox.innerHTML = `Truy vết: <span style="color:#f1c40f; font-weight:bold;">${getNodeDisplayName(prevNode)}</span> ➔ <span style="color:#f1c40f; font-weight:bold;">${getNodeDisplayName(curr)}</span>`;
                 }
             }
 
-            if (i === pathNodes.length - 1) {
-                isAnimating = false;
-                if (statusBox) statusBox.innerHTML = `<span style="color: #2ecc71; font-weight: bold;">Đã hoàn thành!</span>`;
-                
-                if (btnRun) { btnRun.disabled = false; btnRun.innerHTML = 'Chạy thuật toán'; } 
+            if (index === pathNodes.length - 1) {
+                finishAnimation('Đã hoàn thành!', 'success');
             }
-        }, (getSpeedDelay() / 2) * i); 
-    }
+        }, pathDelay * index);
+    });
 }
 
-function buildGraphFromEdgeList() {
-    if (isAnimating) return;
-    
-    const text = document.getElementById('edge-list-input').value.trim();
-    const startInput = document.getElementById('start-node-input').value.trim();
-    const targetInput = document.getElementById('target-node-input').value.trim();
-    
-    if (!text) return;
 
-    const lines = text.split('\n');
-    let edgesToBuild = [];
-    let uniqueNodes = new Set(); 
+function initVisualizer() {
+    container = document.getElementById('graph-container');
+    svg = document.getElementById('edges-svg');
+    if (!container) return;
 
-    // Đọc danh sách cạnh
-    lines.forEach(line => {
-        const parts = line.trim().split(/\s+/); 
-        if (parts.length >= 2) {
-            let u = parts[0];
-            let v = parts[1];
-            let w = parts.length >= 3 ? parseFloat(parts[2]) : 1; 
-            
-            edgesToBuild.push([u, v, w]);
-            uniqueNodes.add(u);
-            uniqueNodes.add(v);
-        }
+    document.getElementById('algo-select')?.addEventListener('change', syncEdgeWeightLabels);
+
+    container.addEventListener('mousemove', (event) => {
+        if (isAnimating || draggingNodeId === null || !nodes[draggingNodeId]) return;
+
+        const rect = container.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        nodes[draggingNodeId].x = x;
+        nodes[draggingNodeId].y = y;
+        nodes[draggingNodeId].el.style.left = `${x}px`;
+        nodes[draggingNodeId].el.style.top = `${y}px`;
+
+        updateEdges();
     });
 
-    if (startInput) uniqueNodes.add(startInput);
-    if (targetInput) uniqueNodes.add(targetInput);
-
-    if (uniqueNodes.size === 0) return;
-
-    // --- BẮT ĐẦU ĐOẠN CODE MỚI THÊM: TỰ ĐỘNG SINH ĐỈNH TỪ 1 ĐẾN MAX ---
-    let isNumeric = true;
-    let maxNode = 0;
-    let minNode = Infinity;
-
-    // Kiểm tra xem tất cả các đỉnh có phải là số không, và tìm Max, Min
-    uniqueNodes.forEach(node => {
-        let num = parseInt(node, 10);
-        // Nếu có chữ cái (VD: 'A', 'B') thì không điền bù
-        if (isNaN(num) || String(num) !== String(node)) { 
-            isNumeric = false;
-        } else {
-            if (num > maxNode) maxNode = num;
-            if (num < minNode) minNode = num;
-        }
+    window.addEventListener('mouseup', () => {
+        draggingNodeId = null;
     });
+}
 
-    // Nếu toàn bộ đỉnh là số nguyên, điền bù các đỉnh bị thiếu
-    if (isNumeric && maxNode > 0) {
-        // Hỗ trợ cả đồ thị 0-based (bắt đầu từ 0) hoặc 1-based (bắt đầu từ 1)
-        let startIdx = minNode === 0 ? 0 : 1; 
-        for (let i = startIdx; i <= maxNode; i++) {
-            uniqueNodes.add(i.toString());
-        }
-    }
-    // --- KẾT THÚC ĐOẠN CODE MỚI THÊM ---
 
+document.addEventListener('DOMContentLoaded', () => {
+    initVisualizer();
     clearGraph();
-
-    let w_container = container.clientWidth || 800;
-    let h_container = container.clientHeight || 550;
-    let nodeMap = {}; 
-
-    // 1. SẮP XẾP DANH SÁCH ĐỈNH TĂNG DẦN
-    let nodesArray = Array.from(uniqueNodes).sort((a, b) => {
-        let numA = parseFloat(a), numB = parseFloat(b);
-        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-        return a.localeCompare(b);
-    });
-
-    // 2. THUẬT TOÁN CHIA LƯỚI (GRID LAYOUT)
-    let numNodes = nodesArray.length;
-    let cols = Math.ceil(Math.sqrt(numNodes));
-    let rows = Math.ceil(numNodes / cols);
-
-    let margin = 60; 
-    let availableWidth = w_container - 2 * margin;
-    let availableHeight = h_container - 2 * margin;
-
-    let stepX = cols > 1 ? availableWidth / (cols - 1) : availableWidth / 2;
-    let stepY = rows > 1 ? availableHeight / (rows - 1) : availableHeight / 2;
-
-    // 3. RẢI ĐỈNH LÊN LƯỚI
-    nodesArray.forEach((nodeName, index) => {
-        let r = Math.floor(index / cols);
-        let c = index % cols;
-
-        let x = cols > 1 ? margin + c * stepX : w_container / 2;
-        let y = rows > 1 ? margin + r * stepY : h_container / 2;
-        
-        let type = 'normal';
-        if (nodeName === startInput) type = 'start';
-        else if (nodeName === targetInput) type = 'target';
-        
-        nodeMap[nodeName] = addNode(x, y, type, nodeName);
-    });
-
-    // Vẽ cạnh nối
-    edgesToBuild.forEach(edge => addEdge(nodeMap[edge[0]], nodeMap[edge[1]], edge[2]));
-}
+});

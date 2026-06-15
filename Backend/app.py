@@ -1,172 +1,247 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-import subprocess
 import os
+import subprocess
 import tempfile
+
 
 app = Flask(__name__)
 CORS(app)
 
+DEFAULT_TIMEOUT_SECONDS = 5
+COMPILE_TIMEOUT_SECONDS = 15
+SUPPORTED_LANGUAGES = {'cpp', 'python', 'java'}
+
+
+def get_payload():
+    return request.get_json(silent=True) or {}
+
+
+def as_text(value):
+    return value if isinstance(value, str) else ''
+
+
+def parse_bounded_int(value, default, minimum=1, maximum=None):
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        parsed = default
+
+    parsed = max(minimum, parsed)
+    return min(parsed, maximum) if maximum else parsed
+
+
+def normalize_language(value):
+    if value in ('cpp', 'c++'):
+        return 'cpp'
+    if value in ('python', 'java'):
+        return value
+    return ''
+
+
+def write_source(path, code):
+    with open(path, 'w', encoding='utf-8') as source_file:
+        source_file.write(code)
+
+
+def run_subprocess(command, user_input='', timeout=DEFAULT_TIMEOUT_SECONDS):
+    return subprocess.run(
+        command,
+        input=user_input,
+        text=True,
+        capture_output=True,
+        timeout=timeout,
+    )
+
+
+def compile_subprocess(command):
+    return subprocess.run(
+        command,
+        text=True,
+        capture_output=True,
+        timeout=COMPILE_TIMEOUT_SECONDS,
+    )
+
+
+def build_program(language, code, work_dir, stem='main'):
+    if language not in SUPPORTED_LANGUAGES:
+        return {'error': 'Ngôn ngữ chưa được hỗ trợ!', 'code': 1}
+
+    if language == 'python':
+        file_path = os.path.join(work_dir, f'{stem}.py')
+        write_source(file_path, code)
+        return {'command': ['python', file_path]}
+
+    if language == 'cpp':
+        file_path = os.path.join(work_dir, f'{stem}.cpp')
+        exe_path = os.path.join(work_dir, f'{stem}.exe')
+        write_source(file_path, code)
+
+        compile_result = compile_subprocess(['g++', file_path, '-o', exe_path])
+        if compile_result.returncode != 0:
+            return {'error': compile_result.stderr, 'code': compile_result.returncode}
+
+        return {'command': [exe_path]}
+
+    file_path = os.path.join(work_dir, 'Main.java')
+    write_source(file_path, code)
+
+    compile_result = compile_subprocess(['javac', file_path])
+    if compile_result.returncode != 0:
+        return {'error': compile_result.stderr, 'code': compile_result.returncode}
+
+    return {'command': ['java', '-cp', work_dir, 'Main']}
+
+
+def run_single_program(language, code, user_input):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        build = build_program(language, code, temp_dir)
+        if build.get('error'):
+            return {'stdout': '', 'stderr': build['error'], 'code': build.get('code', 1)}
+
+        process = run_subprocess(build['command'], user_input)
+        return {'stdout': process.stdout, 'stderr': process.stderr, 'code': process.returncode}
+
+
+def build_stress_programs(configs, temp_dir):
+    commands = {}
+
+    for role, config in configs.items():
+        language = normalize_language(config.get('lang'))
+        code = as_text(config.get('code'))
+
+        if not code.strip():
+            return None, f'Thiếu code cho {role}.'
+
+        role_dir = os.path.join(temp_dir, role)
+        os.makedirs(role_dir, exist_ok=True)
+
+        build = build_program(language, code, role_dir, role)
+        if build.get('error'):
+            return None, f'Lỗi biên dịch {role}:\n{build["error"]}'
+
+        commands[role] = build['command']
+
+    return commands, None
+
+
+def stress_error(verdict, test=None, test_input='', expected='N/A', actual=''):
+    payload = {'verdict': verdict, 'input': test_input, 'expected': expected, 'actual': actual}
+    if test is not None:
+        payload['test'] = test
+    return payload
+
+
 @app.route('/run', methods=['POST'])
 def run_code():
-    data = request.get_json()
-    lang = data.get('language')
-    code = data.get('code')
-    user_input = data.get('input', '')
+    data = get_payload()
+    language = normalize_language(data.get('language'))
+    code = as_text(data.get('code'))
+    user_input = as_text(data.get('input'))
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        try:
-            if lang == 'python':
-                file_path = os.path.join(temp_dir, 'main.py')
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(code)
-                
-                process = subprocess.run(
-                    ['python', file_path],
-                    input=user_input, text=True, capture_output=True, timeout=5
-                )
-                return jsonify({'stdout': process.stdout, 'stderr': process.stderr, 'code': process.returncode})
+    if not code.strip():
+        return jsonify({'stdout': '', 'stderr': 'Vui lòng nhập code trước khi chạy!', 'code': 1})
 
-            elif lang == 'c++':
-                file_path = os.path.join(temp_dir, 'main.cpp')
-                exe_path = os.path.join(temp_dir, 'main.exe')
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(code)
+    try:
+        return jsonify(run_single_program(language, code, user_input))
+    except subprocess.TimeoutExpired as error:
+        timeout_value = error.timeout if error.timeout is not None else DEFAULT_TIMEOUT_SECONDS
+        return jsonify({'stdout': '', 'stderr': f'Time Limit Exceeded (Quá {timeout_value}s)!', 'code': 124})
+    except Exception as error:
+        return jsonify({'stdout': '', 'stderr': f'Lỗi server: {str(error)}', 'code': 1})
 
-                compile_process = subprocess.run(
-                    ['g++', file_path, '-o', exe_path],
-                    text=True, capture_output=True
-                )
-                
-                if compile_process.returncode != 0:
-                    return jsonify({'stdout': '', 'stderr': compile_process.stderr, 'code': compile_process.returncode})
-
-                run_process = subprocess.run(
-                    [exe_path],
-                    input=user_input, text=True, capture_output=True, timeout=5
-                )
-                return jsonify({'stdout': run_process.stdout, 'stderr': run_process.stderr, 'code': run_process.returncode})
-
-            elif lang == 'java':
-                file_path = os.path.join(temp_dir, 'Main.java')
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(code)
-
-                compile_process = subprocess.run(
-                    ['javac', file_path],
-                    text=True, capture_output=True
-                )
-                
-                if compile_process.returncode != 0:
-                    return jsonify({'stdout': '', 'stderr': compile_process.stderr, 'code': compile_process.returncode})
-
-                run_process = subprocess.run(
-                    ['java', '-cp', temp_dir, 'Main'],
-                    input=user_input, text=True, capture_output=True, timeout=5
-                )
-                return jsonify({'stdout': run_process.stdout, 'stderr': run_process.stderr, 'code': run_process.returncode})
-
-            else:
-                return jsonify({'stdout': '', 'stderr': 'Ngôn ngữ chưa được hỗ trợ!', 'code': 1})
-
-        except subprocess.TimeoutExpired:
-            return jsonify({'stdout': '', 'stderr': 'Time Limit Exceeded (Quá 5 giây)!', 'code': 124})
-        except Exception as e:
-            return jsonify({'stdout': '', 'stderr': f'Lỗi server: {str(e)}', 'code': 1})
 
 @app.route('/stress-test', methods=['POST'])
 def run_stress_test():
-    data = request.get_json()
-    test_count = int(data.get('test_count', 100))
-    time_limit_sec = int(data.get('time_limit', 1000)) / 1000.0
-    
-    # Lấy thông tin code và ngôn ngữ từ Frontend
+    data = get_payload()
+    test_count = parse_bounded_int(data.get('test_count'), 100, minimum=1, maximum=1000)
+    time_limit_ms = parse_bounded_int(data.get('time_limit'), 1000, minimum=100, maximum=10000)
+    time_limit_sec = time_limit_ms / 1000.0
+
     configs = {
         'gen': {'code': data.get('gen_code'), 'lang': data.get('gen_lang')},
         'brute': {'code': data.get('brute_code'), 'lang': data.get('brute_lang')},
-        'opt': {'code': data.get('opt_code'), 'lang': data.get('opt_lang')}
+        'opt': {'code': data.get('opt_code'), 'lang': data.get('opt_lang')},
     }
 
     with tempfile.TemporaryDirectory() as temp_dir:
         try:
-            # --- BƯỚC 1: CHUẨN BỊ FILE VÀ BIÊN DỊCH ---
-            exec_cmds = {}
+            commands, build_error = build_stress_programs(configs, temp_dir)
+            if build_error:
+                return jsonify({'verdict': 'ERROR', 'actual': build_error})
 
-            for role, cfg in configs.items():
-                lang = cfg['lang']
-                code = cfg['code']
-                
-                # TẠO THƯ MỤC RIÊNG CHO TỪNG ROLE (gen, brute, opt)
-                role_dir = os.path.join(temp_dir, role)
-                os.makedirs(role_dir, exist_ok=True)
-                
-                if lang == 'python':
-                    file_path = os.path.join(role_dir, f'{role}.py')
-                    with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
-                    exec_cmds[role] = ['python', file_path]
-                
-                elif lang == 'cpp':
-                    file_path = os.path.join(role_dir, f'{role}.cpp')
-                    exe_path = os.path.join(role_dir, f'{role}.exe')
-                    with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
-                    
-                    comp = subprocess.run(['g++', file_path, '-o', exe_path], capture_output=True, text=True)
-                    if comp.returncode != 0:
-                        return jsonify({"verdict": "ERROR", "actual": f"Lỗi biên dịch {role}:\n{comp.stderr}"})
-                    exec_cmds[role] = [exe_path]
-                
-                elif lang == 'java':
-                    # Fix lỗi Java: Giữ nguyên tên Main.java, nằm gọn trong thư mục riêng
-                    file_path = os.path.join(role_dir, 'Main.java')
-                    with open(file_path, 'w', encoding='utf-8') as f: f.write(code)
-                    
-                    comp = subprocess.run(['javac', file_path], capture_output=True, text=True)
-                    if comp.returncode != 0:
-                        return jsonify({"verdict": "ERROR", "actual": f"Lỗi biên dịch {role} (Java):\n{comp.stderr}"})
-                    # Gọi Java chạy class Main trong thư mục của nó
-                    exec_cmds[role] = ['java', '-cp', role_dir, 'Main']
-
-            # --- BƯỚC 2: VÒNG LẶP NATIVE ---
-            for i in range(1, test_count + 1):
-                
-                # 1. Chạy Generator (Áp dụng giới hạn thời gian chung)
+            for test_index in range(1, test_count + 1):
                 try:
-                    gen_proc = subprocess.run(exec_cmds['gen'], capture_output=True, text=True, timeout=time_limit_sec)
-                    test_case = gen_proc.stdout.strip()
+                    gen_proc = run_subprocess(commands['gen'], timeout=time_limit_sec)
                 except subprocess.TimeoutExpired:
-                    return jsonify({"verdict": "TLE", "test": i, "input": "Quá hạn thời gian khi đang sinh Test", "expected": "N/A", "actual": f"Lỗi TLE: Generator chạy quá {time_limit_sec}s"})
+                    return jsonify(stress_error(
+                        'TLE',
+                        test_index,
+                        'Quá hạn thời gian khi đang sinh test',
+                        actual=f'Lỗi TLE: Generator chạy quá {time_limit_sec}s',
+                    ))
 
-                # 2. Chạy Brute-force (Áp dụng giới hạn thời gian chung)
+                if gen_proc.returncode != 0:
+                    return jsonify(stress_error(
+                        'RTE',
+                        test_index,
+                        actual=gen_proc.stderr or 'Generator Runtime Error',
+                    ))
+
+                test_case = gen_proc.stdout
+
                 try:
-                    brute_proc = subprocess.run(exec_cmds['brute'], input=test_case, capture_output=True, text=True, timeout=time_limit_sec)
-                    expected_out = brute_proc.stdout.strip()
+                    brute_proc = run_subprocess(commands['brute'], test_case, time_limit_sec)
                 except subprocess.TimeoutExpired:
-                    return jsonify({"verdict": "TLE", "test": i, "input": test_case, "expected": "N/A", "actual": f"Lỗi TLE: Code Thuật Trâu (Brute-force) chạy quá {time_limit_sec}s"})
+                    return jsonify(stress_error(
+                        'TLE',
+                        test_index,
+                        test_case,
+                        actual=f'Lỗi TLE: Code Thuật Trâu (Brute-force) chạy quá {time_limit_sec}s',
+                    ))
 
-                # 3. Chạy Optimized (Áp dụng giới hạn thời gian chung)
+                if brute_proc.returncode != 0:
+                    return jsonify(stress_error(
+                        'RTE',
+                        test_index,
+                        test_case,
+                        actual=brute_proc.stderr or 'Brute-force Runtime Error',
+                    ))
+
+                expected_out = brute_proc.stdout.strip()
+
                 try:
-                    opt_proc = subprocess.run(
-                        exec_cmds['opt'], 
-                        input=test_case, 
-                        capture_output=True, 
-                        text=True, 
-                        timeout=time_limit_sec
-                    )
-                    
-                    if opt_proc.returncode != 0:
-                        return jsonify({"verdict": "RTE", "test": i, "input": test_case, "expected": expected_out, "actual": opt_proc.stderr or "Runtime Error"})
-                    
-                    actual_out = opt_proc.stdout.strip()
-                    if actual_out != expected_out:
-                        return jsonify({"verdict": "WA", "test": i, "input": test_case, "expected": expected_out, "actual": actual_out})
-                        
+                    opt_proc = run_subprocess(commands['opt'], test_case, time_limit_sec)
                 except subprocess.TimeoutExpired:
-                    return jsonify({"verdict": "TLE", "test": i, "input": test_case, "expected": expected_out, "actual": f"Lỗi TLE: Code Tối Ưu (Optimized) chạy quá {time_limit_sec}s"})
+                    return jsonify(stress_error(
+                        'TLE',
+                        test_index,
+                        test_case,
+                        expected_out,
+                        f'Lỗi TLE: Code Tối Ưu (Optimized) chạy quá {time_limit_sec}s',
+                    ))
 
-            return jsonify({"verdict": "AC", "passed": test_count})
-            
-        except Exception as e:
-            return jsonify({"verdict": "ERROR", "actual": f"Lỗi hệ thống: {str(e)}"})
+                if opt_proc.returncode != 0:
+                    return jsonify(stress_error(
+                        'RTE',
+                        test_index,
+                        test_case,
+                        expected_out,
+                        opt_proc.stderr or 'Runtime Error',
+                    ))
+
+                actual_out = opt_proc.stdout.strip()
+                if actual_out != expected_out:
+                    return jsonify(stress_error('WA', test_index, test_case, expected_out, actual_out))
+
+            return jsonify({'verdict': 'AC', 'passed': test_count})
+
+        except subprocess.TimeoutExpired as error:
+            timeout_value = error.timeout if error.timeout is not None else COMPILE_TIMEOUT_SECONDS
+            return jsonify({'verdict': 'ERROR', 'actual': f'Biên dịch quá thời gian ({timeout_value}s).'})
+        except Exception as error:
+            return jsonify({'verdict': 'ERROR', 'actual': f'Lỗi hệ thống: {str(error)}'})
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

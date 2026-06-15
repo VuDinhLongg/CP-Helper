@@ -1,27 +1,113 @@
-/* Bố cục Algorithm Visualizer */
-.graph-editor-layout { 
-    display: flex; 
-    gap: 15px; 
+#visualizer.active {
+    display: flex !important;
+    flex-direction: column;
+    gap: 5px;
+    height: calc(100vh - 40px);
+    min-height: 0;
 }
+
+#visualizer > header {
+    margin-bottom: 0 !important;
+    padding-bottom: 5px;
+}
+
+#visualizer > header,
+#visualizer > .grid-legend {
+    flex: 0 0 auto;
+}
+
+.graph-editor-layout { 
+    --bs-gutter-x: 5px;
+    --bs-gutter-y: 5px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
 .edge-list-sidebar { 
     display: flex; 
     flex-direction: column; 
+    min-width: 0;
 }
+
+[data-bs-theme="dark"] .edge-list-panel {
+    background-color: var(--cp-panel) !important;
+}
+
+[data-bs-theme="dark"] .edge-list-panel textarea,
+[data-bs-theme="dark"] .edge-list-panel input {
+    background-color: var(--cp-surface-deep) !important;
+    color: #f0f0f0 !important;
+}
+
+[data-bs-theme="dark"] #edge-list-input::placeholder {
+    color: #8a8a8a !important;
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 1;
+}
+
+[data-bs-theme="dark"] .edge-list-panel .form-label {
+    color: #ededed !important;
+}
+
+[data-bs-theme="dark"] .edge-list-panel .form-label.text-success {
+    color: #38d978 !important;
+}
+
+[data-bs-theme="dark"] .edge-list-panel .form-label.text-danger {
+    color: #ff6b5f !important;
+}
+
 .grid-legend { 
     display: flex; 
     justify-content: center; 
     gap: 25px; 
-    margin-bottom: 5px; 
+    margin-bottom: 0;
     flex-wrap: wrap; 
     padding: 8px; 
-    background-color: #252526; 
+    background-color: var(--cp-panel);
     border-radius: 8px; 
-    border: 1px solid #333; 
+    border: 1px solid var(--cp-border);
 }
+
+[data-bs-theme="warm"] .grid-legend {
+    background-color: #fff3d6;
+    border-color: #d6bf91;
+}
+
+[data-bs-theme="warm"] #visualizer,
+[data-bs-theme="warm"] #visualizer .text-secondary,
+[data-bs-theme="warm"] #visualizer .text-muted,
+[data-bs-theme="warm"] #visualizer .form-label,
+[data-bs-theme="warm"] #visualizer .form-control,
+[data-bs-theme="warm"] #visualizer .form-select {
+    color: #111111 !important;
+}
+
 .legend-item { 
     display: flex; 
     align-items: center; 
     gap: 8px; 
+}
+
+[data-bs-theme="dark"] .legend-item .text-secondary {
+    color: #d7d7d7 !important;
+}
+
+[data-bs-theme="dark"] .legend-dot-start + span {
+    color: #38d978 !important;
+}
+
+[data-bs-theme="dark"] .legend-dot-target + span {
+    color: #ff6b5f !important;
+}
+
+[data-bs-theme="dark"] .legend-dot-visited + span {
+    color: #55b7ee !important;
+}
+
+[data-bs-theme="dark"] .legend-dot-path + span {
+    color: #ffd43b !important;
 }
 
 .legend-dot {
@@ -52,16 +138,39 @@
     box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
 }
 
-/* Khung vẽ Đồ thị & Cạnh */
 .graph-container { 
     position: relative; 
     width: 100%; 
-    height: 550px; 
-    background-color: #252526; 
-    border: 2px solid #333; 
+    min-height: 360px;
+    background-color: var(--cp-panel);
+    border: 2px solid var(--cp-border);
     border-radius: 8px; 
     overflow: hidden; 
+    -webkit-user-select: none;
     user-select: none; 
+}
+
+@media (min-width: 992px) {
+    .graph-editor-layout > [class*="col-"] {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .graph-container {
+        height: 100%;
+        min-height: 0;
+    }
+}
+
+[data-bs-theme="warm"] .graph-container {
+    background-color: #fff8e1;
+    border-color: #d6bf91;
+}
+
+[data-bs-theme="warm"] .edge-list-panel textarea,
+[data-bs-theme="warm"] .edge-list-panel input {
+    color: #111111 !important;
 }
 
 .edges-svg { 
@@ -74,9 +183,13 @@
 }
 
 .edge-line { 
-    stroke: #7f8c8d; 
+    stroke: #666666;
     stroke-width: 4; 
     transition: stroke 0.3s; 
+}
+
+[data-bs-theme="warm"] .edge-line {
+    stroke: #9d7d4d;
 }
 
 .edge-line.path { 
@@ -84,13 +197,12 @@
     stroke-width: 6; 
 }
 
-/* Các Đỉnh (Vertex) */
 .vertex { 
     position: absolute; 
     width: 36px; 
     height: 36px; 
-    background-color: #1e1e1e; 
-    border: 3px solid #007acc; 
+    background-color: var(--cp-surface);
+    border: 3px solid var(--cp-primary);
     border-radius: 50%; 
     transform: translate(-50%, -50%); 
     display: flex; 
@@ -104,11 +216,20 @@
     z-index: 10; 
 }
 
+[data-bs-theme="warm"] .vertex {
+    background-color: #fffaf0;
+    color: #33281d;
+}
+
+[data-bs-theme="warm"] .vertex:hover {
+    background-color: #f4dfae;
+}
+
 .vertex:active { cursor: grabbing; }
 
 .vertex:hover { 
-    background-color: #333; 
-    box-shadow: 0 0 10px rgba(0, 122, 204, 0.8); 
+    background-color: #2d2d2d;
+    box-shadow: 0 0 10px rgba(15, 111, 174, 0.45);
 }
 
 .vertex.start { 
@@ -121,7 +242,6 @@
     background-color: rgba(231, 76, 60, 0.2); 
 }
 
-/* Hiệu ứng tô màu (Animations) */
 .vertex.visited { 
     animation: visitedVertex 1.5s ease-out forwards; 
 }
@@ -156,13 +276,12 @@
     } 
 }
 
-/* Bảng hiển thị trạng thái đang duyệt (Live Log) */
 .algo-status-overlay {
     position: absolute;
     top: 20px;
     right: 20px;
-    background-color: rgba(37, 37, 38, 0.85);
-    border: 1px solid #444;
+    background-color: rgba(37, 37, 38, 0.9);
+    border: 1px solid var(--cp-border);
     border-radius: 6px;
     padding: 8px 16px;
     color: #e0e0e0;
@@ -171,6 +290,7 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     z-index: 100;
     display: none; 
+    -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
 }
 
