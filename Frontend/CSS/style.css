@@ -67,6 +67,10 @@ body {
     color: var(--text-muted) !important;
 }
 
+[data-bs-theme="dark"] .text-success {
+    color: #00dd00 !important;
+}
+
 [data-bs-theme="dark"] .form-label {
     color: var(--text-muted);
 }

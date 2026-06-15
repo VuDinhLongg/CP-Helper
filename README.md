@@ -3,6 +3,7 @@
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?logo=bootstrap&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?logo=flask&logoColor=white)
 ![C/C++](https://img.shields.io/badge/C%2FC%2B%2B-00599C?logo=c%2B%2B&logoColor=white)
@@ -14,90 +15,81 @@
 
 ---
 
-## ✨ Các tính năng cốt lõi
+## ✨ Các tính năng nổi bật
 
-### 1. 🕸️ Trực quan hóa thuật toán (Algorithm Visualizer)
-Thay vì mô phỏng trên ma trận lưới đơn điệu, phân hệ này hỗ trợ mô phỏng không gian Đồ thị Đỉnh - Cạnh chuyên sâu:
-* **Khởi tạo linh hoạt:** Dựng đồ thị trực tiếp từ **Danh sách cạnh**, hỗ trợ cả đồ thị có trọng số.
-* **Bố cục thông minh & Kéo thả:** Tự động sắp xếp các đỉnh theo dạng lưới toán học, kết hợp với độ lệch ngẫu nhiên để chống việc các cạnh đè lên nhau. Hỗ trợ thao tác kéo thả siêu mượt để người dùng tự do căn chỉnh hình dáng đồ thị.
-* **Hiệu ứng mô phỏng:** Trình diễn từng bước duyệt của thuật toán **BFS**, **DFS** và **Dijkstra** với hiệu ứng loang màu và tự động làm nổi bật đường đi ngắn nhất. Tích hợp 3 tùy chọn tốc độ (Nhanh, Thường, Chậm).
+### 1. Trực quan hóa thuật toán (Algorithm Visualizer)
+Hỗ trợ mô phỏng luồng hoạt động của các thuật toán đồ thị kinh điển (BFS, DFS, Dijkstra) trên không gian hai chiều với cơ chế kéo thả tương tác vật lý trực tiếp.
+* **Tự động xử lý ngoại lệ:** Tự động tính toán và điền bù các đỉnh bị thiếu trong danh sách cạnh người dùng nhập vào.
+* **Cấu trúc dữ liệu tối ưu:** Tự cài đặt cấu trúc dữ liệu Hàng đợi ưu tiên (`MinHeap`) bằng JavaScript nguyên bản để tối ưu hóa triệt để thuật toán Dijkstra.
 
-![Demo Algorithm Visualizer](Assets/demo-algo.png)
+![Demo Algorithm Visualizer](static/assets/demo-algo-dark.png)
 
-### 2. 💻 Môi trường lập trình trực tuyến (Online IDE)
-Môi trường gõ code chuyên nghiệp ngay trên trình duyệt mà không cần cài đặt phần mềm:
-* **Trình soạn thảo mạnh mẽ:** Tích hợp lõi soạn thảo của Visual Studio Code (Monaco Editor), mang lại trải nghiệm gõ phím đỉnh cao, tự động tô màu cú pháp cho **C++, Java, Python**.
-* **Giao diện co giãn tự do:** Hệ thống vách ngăn cho phép người dùng tự do kéo thả để thay đổi tỷ lệ diện tích giữa khung gõ Mã nguồn, Dữ liệu vào (Input) và Dữ liệu ra (Output).
-* **Xử lý lỗi thông minh:** Hệ thống bắt lỗi biên dịch và hiển thị thông qua Cửa sổ nổi (Pop-up) rộng rãi, tối ưu trải nghiệm người dùng thay vì in dòng chữ báo lỗi nhỏ xíu ra bảng điều khiển.
+![Demo Algorithm Visualizer](static/assets/demo-algo-warm.png)
 
-![Demo Online IDE](Assets/demo-editor.png)
+### 2. Môi trường lập trình trực tuyến (Online IDE)
+Không gian lập trình tinh gọn, tích hợp trình soạn thảo mã nguồn mở Monaco Editor (nhân lõi của VS Code).
+* **Quản lý đa sắc thái (Theme Switching):** Hỗ trợ chuyển đổi mượt mà giữa chế độ Nền tối (Dark Theme) và Nền ấm (Warm Theme) giúp bảo vệ thị lực.
+* **Không gian linh hoạt:** Tích hợp hệ thống vách ngăn co giãn (Resizer) cho phép tùy biến tỷ lệ khu vực code và input/output.
+* **Cảnh báo lỗi thông minh:** Lỗi biên dịch (Compile Error) được bắt và hiển thị nổi bật thông qua hệ thống Cửa sổ nổi (Pop-up Modal) của Bootstrap.
 
-### 3. 🐞 Hệ thống Sinh test đối chứng tự động (Stress Tester)
-"Vũ khí" tối thượng giúp bắt gọn các lỗi Tràn số nguyên hay Sai logic thuật toán:
-* **Cơ chế 3 trụ cột:** Chạy đồng thời 3 đoạn mã: `Trình sinh dữ liệu ngẫu nhiên` -> `Thuật toán chuẩn (Brute-force/Chạy chậm nhưng đúng)` -> `Thuật toán tối ưu (Cần kiểm thử)`.
-* **Luồng kiểm thử tự động:** So sánh Kết quả dự kiến và Kết quả thực tế. Tự động dừng vòng lặp và in ra chi tiết Bộ test (Hack case) ngay khi phát hiện `KẾT QUẢ SAI`.
-* **An toàn & Kiểm soát:** Tích hợp nút **Dừng khẩn cấp** để ngắt luồng. Máy chủ tự động chặn các đoạn mã bị lặp vô hạn (Quá thời gian thực thi - TLE) sau 5 giây.
+![Demo Online IDE](static/assets/demo-editor-dark.png)
 
-![Demo Stress Tester](Assets/demo-gentest.png)
+![Demo Online IDE](static/assets/demo-editor-warm.png)
 
----
+### 3. Hệ thống Sinh test đối chứng tự động (Stress Tester)
+"Vũ khí" giải quyết bài toán Time Limit Exceeded (TLE) và Wrong Answer (WA). Khởi chạy đồng thời 3 luồng mã nguồn: Trình sinh test ngẫu nhiên (Generator), Thuật toán chuẩn (Brute-force) và Thuật toán tối ưu (Optimized).
+* **Định danh mã lỗi chi tiết:** Phân tách và bắt chính xác các trạng thái AC, WA, TLE, RTE, CE. Dừng vòng lặp và xuất ngay Hack Case khi phát hiện kết quả sai lệch.
+* **Hộp cát đa thư mục (Multi-folder Sandboxing):** Kiến trúc xử lý tiến trình ngầm chia tách thư mục tạm độc lập, giải quyết triệt để rủi ro xung đột bộ nhớ và trùng lặp tên lớp (đặc biệt hiệu quả với ngôn ngữ Java).
 
-## 🛠️ Kiến trúc & Công nghệ
+![Demo Stress Tester](static/assets/demo-gentest-dark.png)
 
-Dự án áp dụng triết lý **Mã nguồn sạch**, tách biệt rõ ràng các phân hệ và nói không với các bộ khung (Framework) thiết kế web cồng kềnh nhằm tối ưu hóa tốc độ tải trang.
-
-* **Giao diện (Frontend):**
-  * **HTML5, CSS3:** Tùy chỉnh thanh cuộn, Bố cục Flexbox/Grid linh hoạt.
-  * **Vanilla JavaScript:** Xử lý logic thuật toán, Hiệu ứng chuyển động SVG, và Kết nối API.
-  * **Thư viện nhúng:** Lõi Monaco Editor (via CDN), FontAwesome.
-* **Máy chủ thực thi cục bộ (Backend):**
-  * **Python / Flask API:** Đóng vai trò máy chủ tiếp nhận mã nguồn.
-  * **Sandboxing (Hộp cát an toàn):** Sử dụng các thư viện hệ thống (`subprocess` và `tempfile`) để tự động cấp phát thư mục ảo khi biên dịch mã nguồn, và dọn sạch rác bộ nhớ ngay sau khi chạy xong.
+![Demo Stress Tester](static/assets/demo-gentest-warm.png)
 
 ---
 
-## ⚙️ Hướng dẫn Cài đặt & Chạy dự án
+## 🛠️ Kiến trúc Công nghệ (Local Client-Server)
 
-Vì hệ thống hiện tại thao tác trực tiếp với các tiến trình của hệ điều hành để biên dịch mã nguồn, bạn cần chạy hệ thống này ở môi trường cục bộ (Localhost).
+Dự án được triển khai theo mô hình Máy chủ cục bộ, tận dụng tài nguyên hệ điều hành để biên dịch mã nguồn an toàn:
+
+* **Giao diện & Tương tác (Frontend):** * HTML5, CSS3, Vanilla JS kết hợp thư viện giao diện **Bootstrap 5.3**.
+  * Trực quan hóa đồ họa vector bằng **SVG**.
+  * Nhúng lõi soạn thảo **Monaco Editor**.
+* **Máy chủ cục bộ (Backend):**
+  * Vi khung **Python / Flask API** tiếp nhận yêu cầu biên dịch.
+  * Thư viện `subprocess` để điều phối tiến trình biên dịch (g++, javac, python).
+  * Thư viện `tempfile` cấp phát và thu hồi vùng nhớ (Sandboxing) tránh tồn đọng rác hệ thống.
+
+---
+
+## ⚙️ Hướng dẫn Cài đặt & Khởi chạy
+
+Vì hệ thống thao tác trực tiếp với các tiến trình gốc của hệ điều hành để biên dịch mã nguồn, bạn cần chạy nền tảng này ở môi trường cục bộ (Localhost).
 
 ### Yêu cầu hệ thống:
 * Đã cài đặt **Python 3.8+** trên máy.
-* Cài đặt các trình biên dịch tương ứng nếu muốn chạy mã nguồn: `g++` (C++), `JDK` (Java).
+* Cài đặt sẵn các trình biên dịch tương ứng nếu muốn chạy mã nguồn: `g++` (C/C++), `JDK 11+` (Java).
 
 ### Các bước khởi chạy:
 
 **1. Tải mã nguồn về máy:**
-```
-git clone https://github.com/VuDinhLongg/CP_Helper.git
-```
+```bash
+git clone https://github.com/VuDinhLongg/CP-Helper.git
 
-```
-cd CP_Helper
+cd CP-Helper
 ```
 
 **2. Cài đặt thư viện cho Backend:**
-Mở terminal và chạy lệnh sau:
-```
+```bash
 pip install flask flask-cors
 ```
 
-**3. Khởi động Máy chủ Thực thi (Backend):**
-```
+**3. Khởi động Máy chủ Thực thi:**
+```bash
 python app.py
 ```
+*(Đảm bảo terminal thông báo Máy chủ đang chạy ở địa chỉ `http://127.0.0.1:5000`)*
 
-*(Đảm bảo terminal thông báo Máy chủ đang chạy ở địa chỉ http://127.0.0.1:5000)*
+**4. Khởi chạy Giao diện:**
+Chỉ cần mở tệp `templates/index.html` trực tiếp bằng trình duyệt (Chrome, Edge, Firefox) hoặc chạy thông qua tiện ích Live Server của VS Code.
 
-**4. Mở Giao diện Web (Frontend):**
-* Bạn có thể nhấp đúp trực tiếp vào file `index.html` để mở bằng trình duyệt web.
-* **Khuyến nghị:** Sử dụng tiện ích **Live Server** trên VS Code để có trải nghiệm tốt nhất và không bị lỗi CORS.
 
----
-
-## 👨‍💻 Đội ngũ phát triển
-
-* **Vũ Đình Long** (B23DCAT175) - @LonggVuz
-* **Nguyễn Hữu Trường** (B23DCVT424) - @NguyenHuuTruong
-* **Đỗ Minh Tuấn** (B23DCVT436) - @DoMinhTuan
-
----
