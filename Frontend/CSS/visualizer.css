@@ -16,16 +16,16 @@
     flex: 0 0 auto;
 }
 
-.graph-editor-layout { 
+.graph-editor-layout {
     --bs-gutter-x: 5px;
     --bs-gutter-y: 5px;
     flex: 1 1 auto;
     min-height: 0;
 }
 
-.edge-list-sidebar { 
-    display: flex; 
-    flex-direction: column; 
+.edge-list-sidebar {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
 }
 
@@ -58,15 +58,15 @@
     color: #ff6b5f !important;
 }
 
-.grid-legend { 
-    display: flex; 
-    justify-content: center; 
-    gap: 25px; 
+.grid-legend {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
     margin-bottom: 0;
-    flex-wrap: wrap; 
-    padding: 8px; 
+    flex-wrap: wrap;
+    padding: 8px;
     background-color: var(--cp-panel);
-    border-radius: 8px; 
+    border-radius: 8px;
     border: 1px solid var(--cp-border);
 }
 
@@ -84,10 +84,10 @@
     color: #111111 !important;
 }
 
-.legend-item { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 [data-bs-theme="dark"] .legend-item .text-secondary {
@@ -138,16 +138,16 @@
     box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
 }
 
-.graph-container { 
-    position: relative; 
-    width: 100%; 
+.graph-container {
+    position: relative;
+    width: 100%;
     min-height: 360px;
     background-color: var(--cp-panel);
     border: 2px solid var(--cp-border);
-    border-radius: 8px; 
-    overflow: hidden; 
+    border-radius: 8px;
+    overflow: hidden;
     -webkit-user-select: none;
-    user-select: none; 
+    user-select: none;
 }
 
 @media (min-width: 992px) {
@@ -173,47 +173,47 @@
     color: #111111 !important;
 }
 
-.edges-svg { 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    pointer-events: none; 
+.edges-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 
-.edge-line { 
+.edge-line {
     stroke: #666666;
-    stroke-width: 4; 
-    transition: stroke 0.3s; 
+    stroke-width: 4;
+    transition: stroke 0.3s;
 }
 
 [data-bs-theme="warm"] .edge-line {
     stroke: #9d7d4d;
 }
 
-.edge-line.path { 
-    stroke: #f1c40f; 
-    stroke-width: 6; 
+.edge-line.path {
+    stroke: #f1c40f;
+    stroke-width: 6;
 }
 
-.vertex { 
-    position: absolute; 
-    width: 36px; 
-    height: 36px; 
+.vertex {
+    position: absolute;
+    width: 36px;
+    height: 36px;
     background-color: var(--cp-surface);
     border: 3px solid var(--cp-primary);
-    border-radius: 50%; 
-    transform: translate(-50%, -50%); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    color: white; 
-    font-weight: bold; 
-    font-size: 13px; 
-    cursor: grab; 
-    transition: background-color 0.2s, box-shadow 0.2s; 
-    z-index: 10; 
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: grab;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    z-index: 10;
 }
 
 [data-bs-theme="warm"] .vertex {
@@ -227,53 +227,53 @@
 
 .vertex:active { cursor: grabbing; }
 
-.vertex:hover { 
+.vertex:hover {
     background-color: #2d2d2d;
     box-shadow: 0 0 10px rgba(15, 111, 174, 0.45);
 }
 
-.vertex.start { 
-    border-color: #2ecc71; 
-    background-color: rgba(46, 204, 113, 0.2); 
+.vertex.start {
+    border-color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.2);
 }
 
-.vertex.target { 
-    border-color: #e74c3c; 
-    background-color: rgba(231, 76, 60, 0.2); 
+.vertex.target {
+    border-color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.2);
 }
 
-.vertex.visited { 
-    animation: visitedVertex 1.5s ease-out forwards; 
+.vertex.visited {
+    animation: visitedVertex 1.5s ease-out forwards;
 }
 
-@keyframes visitedVertex { 
-    0% { 
-        transform: translate(-50%, -50%) scale(0.5); 
-        background-color: rgba(0, 0, 66, 0.8); 
-    } 
-    50% { background-color: rgba(17, 104, 217, 0.8); } 
-    100% { 
-        transform: translate(-50%, -50%) scale(1); 
-        background-color: #3498db; 
-        border-color: #fff; 
-    } 
+@keyframes visitedVertex {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        background-color: rgba(0, 0, 66, 0.8);
+    }
+    50% { background-color: rgba(17, 104, 217, 0.8); }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        background-color: #3498db;
+        border-color: #fff;
+    }
 }
 
-.vertex.path { 
-    animation: pathVertex 0.5s ease-out forwards; 
+.vertex.path {
+    animation: pathVertex 0.5s ease-out forwards;
 }
 
-@keyframes pathVertex { 
-    0% { 
-        transform: translate(-50%, -50%) scale(0.8); 
-        background-color: #f1c40f; 
-    } 
-    100% { 
-        transform: translate(-50%, -50%) scale(1); 
-        background-color: #f1c40f; 
-        border-color: #fff; 
+@keyframes pathVertex {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        background-color: #f1c40f;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        background-color: #f1c40f;
+        border-color: #fff;
         box-shadow: 0 0 15px #f1c40f;
-    } 
+    }
 }
 
 .algo-status-overlay {
@@ -289,13 +289,13 @@
     font-size: 14px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     z-index: 100;
-    display: none; 
+    display: none;
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
 }
 
 .node-highlight {
-    color: #f1c40f; 
+    color: #f1c40f;
     font-weight: bold;
     font-size: 16px;
 }

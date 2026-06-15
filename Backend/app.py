@@ -4,7 +4,6 @@ import os
 import subprocess
 import tempfile
 
-
 app = Flask(__name__)
 CORS(app)
 
@@ -12,14 +11,11 @@ DEFAULT_TIMEOUT_SECONDS = 5
 COMPILE_TIMEOUT_SECONDS = 15
 SUPPORTED_LANGUAGES = {'cpp', 'python', 'java'}
 
-
 def get_payload():
     return request.get_json(silent=True) or {}
 
-
 def as_text(value):
     return value if isinstance(value, str) else ''
-
 
 def parse_bounded_int(value, default, minimum=1, maximum=None):
     try:
@@ -30,7 +26,6 @@ def parse_bounded_int(value, default, minimum=1, maximum=None):
     parsed = max(minimum, parsed)
     return min(parsed, maximum) if maximum else parsed
 
-
 def normalize_language(value):
     if value in ('cpp', 'c++'):
         return 'cpp'
@@ -38,11 +33,9 @@ def normalize_language(value):
         return value
     return ''
 
-
 def write_source(path, code):
     with open(path, 'w', encoding='utf-8') as source_file:
         source_file.write(code)
-
 
 def run_subprocess(command, user_input='', timeout=DEFAULT_TIMEOUT_SECONDS):
     return subprocess.run(
@@ -53,7 +46,6 @@ def run_subprocess(command, user_input='', timeout=DEFAULT_TIMEOUT_SECONDS):
         timeout=timeout,
     )
 
-
 def compile_subprocess(command):
     return subprocess.run(
         command,
@@ -61,7 +53,6 @@ def compile_subprocess(command):
         capture_output=True,
         timeout=COMPILE_TIMEOUT_SECONDS,
     )
-
 
 def build_program(language, code, work_dir, stem='main'):
     if language not in SUPPORTED_LANGUAGES:
@@ -92,7 +83,6 @@ def build_program(language, code, work_dir, stem='main'):
 
     return {'command': ['java', '-cp', work_dir, 'Main']}
 
-
 def run_single_program(language, code, user_input):
     with tempfile.TemporaryDirectory() as temp_dir:
         build = build_program(language, code, temp_dir)
@@ -101,7 +91,6 @@ def run_single_program(language, code, user_input):
 
         process = run_subprocess(build['command'], user_input)
         return {'stdout': process.stdout, 'stderr': process.stderr, 'code': process.returncode}
-
 
 def build_stress_programs(configs, temp_dir):
     commands = {}
@@ -124,13 +113,11 @@ def build_stress_programs(configs, temp_dir):
 
     return commands, None
 
-
 def stress_error(verdict, test=None, test_input='', expected='N/A', actual=''):
     payload = {'verdict': verdict, 'input': test_input, 'expected': expected, 'actual': actual}
     if test is not None:
         payload['test'] = test
     return payload
-
 
 @app.route('/run', methods=['POST'])
 def run_code():
@@ -149,7 +136,6 @@ def run_code():
         return jsonify({'stdout': '', 'stderr': f'Time Limit Exceeded (Quá {timeout_value}s)!', 'code': 124})
     except Exception as error:
         return jsonify({'stdout': '', 'stderr': f'Lỗi server: {str(error)}', 'code': 1})
-
 
 @app.route('/stress-test', methods=['POST'])
 def run_stress_test():
@@ -241,7 +227,6 @@ def run_stress_test():
             return jsonify({'verdict': 'ERROR', 'actual': f'Biên dịch quá thời gian ({timeout_value}s).'})
         except Exception as error:
             return jsonify({'verdict': 'ERROR', 'actual': f'Lỗi hệ thống: {str(error)}'})
-
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

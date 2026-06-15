@@ -1,21 +1,21 @@
-.sidebar { 
-    width: 250px; 
-    transition: width 0.5s ease; 
-    overflow: hidden; 
-    background-color: var(--bg-sidebar); 
-    white-space: nowrap; 
-    padding: 8px; 
+.sidebar {
+    width: 250px;
+    transition: width 0.5s ease;
+    overflow: hidden;
+    background-color: var(--bg-sidebar);
+    white-space: nowrap;
+    padding: 8px;
 }
 
-.sidebar.collapsed { 
-    width: 85px; 
+.sidebar.collapsed {
+    width: 85px;
 }
 
-.logo { 
-    font-size: 36px; 
-    font-weight: bold; 
-    color: var(--accent-yellow); 
-    margin-bottom: 36px; 
+.logo {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--accent-yellow);
+    margin-bottom: 36px;
 }
 
 .brand-logo {
@@ -61,22 +61,22 @@
     margin-left: 0 !important;
 }
 
-.menu-item { 
-    display: flex; 
-    align-items: center; 
-    padding: 12px 15px; 
-    margin: 8px 10px; 
-    border-radius: 16px; 
-    color: var(--text-muted); 
-    text-decoration: none; 
-    gap: 16px; 
-    transition: background-color 0.2s ease; 
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin: 8px 10px;
+    border-radius: 16px;
+    color: var(--text-muted);
+    text-decoration: none;
+    gap: 16px;
+    transition: background-color 0.2s ease;
 }
 
-.menu-item.active, 
-.menu-item:hover { 
+.menu-item.active,
+.menu-item:hover {
     background-color: var(--cp-active);
-    color: white; 
+    color: white;
 }
 
 [data-bs-theme="dark"] .menu-item {
@@ -147,21 +147,21 @@
     --bs-btn-disabled-color: #bda980;
 }
 
-.sidebar.collapsed .menu-text, 
-.sidebar.collapsed .brand-wrapper { 
-    opacity: 0; 
-    width: 0; 
-    overflow: hidden; 
-    pointer-events: none; 
+.sidebar.collapsed .menu-text,
+.sidebar.collapsed .brand-wrapper {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    pointer-events: none;
 }
 
-.tab-content { 
-    display: none; 
+.tab-content {
+    display: none;
 }
 
-.tab-content.active { 
-    display: block; 
-    animation: fadeIn 0.3s; 
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s;
 }
 
 .algo-select {
@@ -288,35 +288,35 @@
     min-width: 0;
 }
 
-.ide-container { 
-    display: flex; 
-    height: 85vh; 
-    width: 100%; 
+.ide-container {
+    display: flex;
+    height: 85vh;
+    width: 100%;
     min-width: 0;
 }
-.editor-section, .io-section { 
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; 
+.editor-section, .io-section {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 .editor-section, .io-section { min-height: 0; }
-.input-area, .output-area { 
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; 
+.input-area, .output-area {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.stress-editors-container { 
-    display: flex; 
-    height: 70%; 
-    width: 100%; 
+.stress-editors-container {
+    display: flex;
+    height: 70%;
+    width: 100%;
     min-width: 0;
 }
-.stress-output-container { 
-    display: flex; 
-    flex-direction: column; 
-    height: 30%; 
-    overflow: hidden; 
+.stress-output-container {
+    display: flex;
+    flex-direction: column;
+    height: 30%;
+    overflow: hidden;
     border-top: 1px solid var(--cp-border);
 }
 

@@ -1,17 +1,14 @@
 const THEME_STORAGE_KEY = 'cp-helper-theme';
 const APP_THEMES = new Set(['dark', 'warm']);
 
-
 function getWindowValue(name) {
     return /** @type {any} */ (window)[name];
 }
-
 
 function getWindowFunction(name) {
     const value = getWindowValue(name);
     return typeof value === 'function' ? value : null;
 }
-
 
 function getStoredTheme() {
     try {
@@ -21,7 +18,6 @@ function getStoredTheme() {
         return 'dark';
     }
 }
-
 
 function setAppTheme(theme, shouldPersist = true) {
     const nextTheme = APP_THEMES.has(theme) ? theme : 'dark';
@@ -46,7 +42,6 @@ function setAppTheme(theme, shouldPersist = true) {
     }
 }
 
-
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach((content) => {
         content.classList.remove('active');
@@ -65,7 +60,6 @@ function switchTab(tabId) {
     setTimeout(refreshEditorsLayout, 50);
 }
 
-
 function getKnownEditors() {
     return [
         typeof mainEditor !== 'undefined' ? mainEditor : null,
@@ -75,13 +69,11 @@ function getKnownEditors() {
     ].filter(Boolean);
 }
 
-
 function layoutEditorIfAvailable(editor) {
     if (editor && typeof editor.layout === 'function') {
         editor.layout();
     }
 }
-
 
 function resizeFallbackEditor(containerId) {
     const container = document.getElementById(containerId);
@@ -101,7 +93,6 @@ function resizeFallbackEditor(containerId) {
     }
 }
 
-
 function refreshEditorsLayout() {
     try {
         getKnownEditors().forEach(layoutEditorIfAvailable);
@@ -112,17 +103,14 @@ function refreshEditorsLayout() {
     ['monaco-editor', 'editor-gen', 'editor-brute', 'editor-opt'].forEach(resizeFallbackEditor);
 }
 
-
 function toggleSidebar() {
     document.getElementById('sidebar')?.classList.toggle('collapsed');
 }
-
 
 function getBootstrapModal(modalEl) {
     const bootstrapApi = getWindowValue('bootstrap');
     return bootstrapApi?.Modal ? bootstrapApi.Modal.getOrCreateInstance(modalEl) : null;
 }
-
 
 function ensureFallbackBackdrop() {
     let backdrop = document.querySelector('[data-cp-modal-backdrop]');
@@ -135,11 +123,9 @@ function ensureFallbackBackdrop() {
     return backdrop;
 }
 
-
 function removeFallbackBackdrop() {
     document.querySelector('[data-cp-modal-backdrop]')?.remove();
 }
-
 
 function showFallbackModal(modalEl) {
     modalEl.style.display = 'block';
@@ -151,7 +137,6 @@ function showFallbackModal(modalEl) {
     ensureFallbackBackdrop();
 }
 
-
 function hideFallbackModal(modalEl) {
     modalEl.classList.remove('show');
     modalEl.style.display = 'none';
@@ -161,7 +146,6 @@ function hideFallbackModal(modalEl) {
     document.body.classList.remove('modal-open');
     removeFallbackBackdrop();
 }
-
 
 function showErrorModal() {
     const modalEl = document.getElementById('error-modal');
@@ -180,7 +164,6 @@ function showErrorModal() {
     showFallbackModal(modalEl);
 }
 
-
 function closeErrorModal() {
     const modalEl = document.getElementById('error-modal');
     if (!modalEl) return;
@@ -197,7 +180,6 @@ function closeErrorModal() {
 
     hideFallbackModal(modalEl);
 }
-
 
 function initializeModalFallback() {
     const modalEl = document.getElementById('error-modal');
@@ -217,13 +199,11 @@ function initializeModalFallback() {
     });
 }
 
-
 function getResizeAxis(direction) {
     return direction === 'horizontal'
         ? { cursor: 'col-resize', eventKey: 'clientX', sizeKey: 'width' }
         : { cursor: 'row-resize', eventKey: 'clientY', sizeKey: 'height' };
 }
-
 
 function applyResize(elem1, elem2, direction, size1, size2) {
     if (direction === 'horizontal') {
@@ -237,7 +217,6 @@ function applyResize(elem1, elem2, direction, size1, size2) {
     elem1.style.height = `${size1}%`;
     elem2.style.height = `${size2}%`;
 }
-
 
 function makeResizable(resizerId, elem1Id, elem2Id, direction) {
     const resizer = document.getElementById(resizerId);
@@ -288,7 +267,6 @@ function makeResizable(resizerId, elem1Id, elem2Id, direction) {
     });
 }
 
-
 function initializeThemeSwitcher() {
     document.querySelectorAll('[data-theme-option]').forEach((button) => {
         button.addEventListener('click', () => setAppTheme(button.dataset.themeOption));
@@ -297,7 +275,6 @@ function initializeThemeSwitcher() {
     setAppTheme(getStoredTheme(), false);
 }
 
-
 function initializeResizers() {
     makeResizable('resizer-1', 'col-gen', 'col-brute', 'horizontal');
     makeResizable('resizer-2', 'col-brute', 'col-opt', 'horizontal');
@@ -305,7 +282,6 @@ function initializeResizers() {
     makeResizable('resizer-ide-v', 'main-editor-col', 'io-col', 'horizontal');
     makeResizable('resizer-ide-h', 'input-row', 'output-row', 'vertical');
 }
-
 
 setAppTheme(getStoredTheme(), false);
 

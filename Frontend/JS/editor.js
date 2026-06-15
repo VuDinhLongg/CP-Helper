@@ -79,39 +79,32 @@ const STRESS_EDITOR_CONFIG = {
 
 let editorsAreFallback = false;
 
-
 function getGlobalValue(name) {
     return /** @type {any} */ (window)[name];
 }
-
 
 function setGlobalValue(name, value) {
     /** @type {any} */ (window)[name] = value;
 }
 
-
 function getMonacoApi() {
     return getGlobalValue('monaco');
 }
 
-
 function getMonacoLoader() {
     return getGlobalValue('require');
 }
-
 
 function getCurrentAppTheme() {
     const getTheme = getGlobalValue('getStoredTheme');
     return typeof getTheme === 'function' ? getTheme() : 'dark';
 }
 
-
 function refreshEditorsSoon(delay = 50) {
     if (typeof refreshEditorsLayout === 'function') {
         setTimeout(refreshEditorsLayout, delay);
     }
 }
-
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -122,7 +115,6 @@ function escapeHtml(value) {
         "'": '&#39;',
     })[char]);
 }
-
 
 function readBoundedIntegerInput(inputId, fallback, min, max) {
     const input = document.getElementById(inputId);
@@ -139,7 +131,6 @@ function readBoundedIntegerInput(inputId, fallback, min, max) {
 
     return value;
 }
-
 
 function createFallbackEditor(containerId, initialValue = '') {
     const container = document.getElementById(containerId);
@@ -163,7 +154,6 @@ function createFallbackEditor(containerId, initialValue = '') {
     };
 }
 
-
 function createFallbackEditors() {
     if (editorsAreFallback) return;
 
@@ -175,11 +165,9 @@ function createFallbackEditors() {
     refreshEditorsSoon();
 }
 
-
 function getEditorThemeName(theme) {
     return theme === 'warm' ? 'cp-warm' : 'vs-dark';
 }
-
 
 function defineCustomEditorThemes() {
     const monacoApi = getMonacoApi();
@@ -213,7 +201,6 @@ function defineCustomEditorThemes() {
     setGlobalValue('cpWarmEditorThemeDefined', true);
 }
 
-
 function applyEditorTheme(theme) {
     const monacoApi = getMonacoApi();
     if (!monacoApi) return;
@@ -221,7 +208,6 @@ function applyEditorTheme(theme) {
     defineCustomEditorThemes();
     monacoApi.editor.setTheme(getEditorThemeName(theme));
 }
-
 
 function setMonacoModelLanguage(editor, language) {
     const monacoApi = getMonacoApi();
@@ -232,7 +218,6 @@ function setMonacoModelLanguage(editor, language) {
         monacoApi.editor.setModelLanguage(model, language);
     }
 }
-
 
 function createMonacoEditor(containerId, value, language, fontSize) {
     const monacoApi = getMonacoApi();
@@ -245,7 +230,6 @@ function createMonacoEditor(containerId, value, language, fontSize) {
         minimap: { enabled: false },
     });
 }
-
 
 function initializeMonacoEditors() {
     const monacoApi = getMonacoApi();
@@ -268,14 +252,12 @@ function initializeMonacoEditors() {
     }
 }
 
-
 function ensureEditorFallback() {
     if (!mainEditor || typeof mainEditor.getValue !== 'function') {
         console.warn('Monaco editors unavailable; using fallback textareas');
         createFallbackEditors();
     }
 }
-
 
 function configureMonacoLoader() {
     const monacoLoader = getMonacoLoader();
@@ -291,7 +273,6 @@ function configureMonacoLoader() {
     monacoLoader(['vs/editor/editor.main'], initializeMonacoEditors);
     setTimeout(ensureEditorFallback, 1500);
 }
-
 
 function changeLanguage() {
     const lang = document.getElementById('lang-select')?.value;
@@ -311,7 +292,6 @@ function changeLanguage() {
     }
 }
 
-
 function changeTestLang(editorType) {
     const config = STRESS_EDITOR_CONFIG[editorType];
     if (!config) return;
@@ -321,7 +301,6 @@ function changeTestLang(editorType) {
     const language = document.getElementById(config.selectId)?.value;
     setMonacoModelLanguage(editor, language);
 }
-
 
 async function postJson(endpoint, payload) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -337,7 +316,6 @@ async function postJson(endpoint, payload) {
     return response.json();
 }
 
-
 async function fetchBackend(langCode, code, input, timeLimit = 1000) {
     return postJson('/run', {
         language: langCode,
@@ -347,7 +325,6 @@ async function fetchBackend(langCode, code, input, timeLimit = 1000) {
     });
 }
 
-
 function showRunError(stderr) {
     const modalText = document.getElementById('modal-error-text');
     if (modalText) {
@@ -355,7 +332,6 @@ function showRunError(stderr) {
     }
     showErrorModal();
 }
-
 
 async function runCode() {
     const langCode = document.getElementById('lang-select')?.value || 'cpp';
@@ -397,7 +373,6 @@ async function runCode() {
     }
 }
 
-
 function getStressPayload() {
     return {
         test_count: readBoundedIntegerInput('test-count', 100, 1, 1000),
@@ -410,7 +385,6 @@ function getStressPayload() {
         opt_code: optEditor && typeof optEditor.getValue === 'function' ? optEditor.getValue() : '',
     };
 }
-
 
 function renderStressFailure(result) {
     let verdictClass = 'text-danger';
@@ -447,7 +421,6 @@ function renderStressFailure(result) {
     );
 }
 
-
 function renderStressResult(result, testCount) {
     if (result.verdict === 'AC') {
         return `<span class="text-success fs-6 fw-bold">Accepted! Đã vượt qua ${testCount} test(s)</span>`;
@@ -459,7 +432,6 @@ function renderStressResult(result, testCount) {
 
     return renderStressFailure(result);
 }
-
 
 async function runStressTest() {
     const consoleOut = document.getElementById('stress-console');
@@ -486,6 +458,5 @@ async function runStressTest() {
         btnRun.innerHTML = '<i class="fa-solid fa-play"></i> Run';
     }
 }
-
 
 configureMonacoLoader();

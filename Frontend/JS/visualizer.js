@@ -61,7 +61,6 @@ class MinHeap {
     }
 }
 
-
 let container = null;
 let svg = null;
 let nodes = {};
@@ -73,7 +72,6 @@ let targetNodeId = null;
 let isAnimating = false;
 let draggingNodeId = null;
 
-
 function escapeVisualizerHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -83,7 +81,6 @@ function escapeVisualizerHtml(value) {
         "'": '&#39;',
     })[char]);
 }
-
 
 function showVisualizerStatus(html, tone = 'info') {
     const statusBox = document.getElementById('algo-status-box');
@@ -100,11 +97,9 @@ function showVisualizerStatus(html, tone = 'info') {
     statusBox.innerHTML = `<span style="color: ${colors[tone] || colors.info}; font-weight: bold;">${html}</span>`;
 }
 
-
 function getNodeDisplayName(id) {
     return escapeVisualizerHtml(nodes[id]?.el?.textContent ?? id);
 }
-
 
 function getSpeedDelay() {
     const speed = document.getElementById('speed-select')?.value;
@@ -112,7 +107,6 @@ function getSpeedDelay() {
     if (speed === 'slow') return 1500;
     return 1000;
 }
-
 
 function syncEdgeWeightLabels() {
     const shouldShowWeight = document.getElementById('algo-select')?.value === 'dijkstra';
@@ -123,11 +117,9 @@ function syncEdgeWeightLabels() {
     });
 }
 
-
 function graphHasInvalidDijkstraWeight() {
     return edges.some((edge) => !Number.isFinite(edge.w) || edge.w < 0);
 }
-
 
 function resetGraphState() {
     nodes = {};
@@ -138,7 +130,6 @@ function resetGraphState() {
     targetNodeId = null;
     draggingNodeId = null;
 }
-
 
 function clearGraph() {
     if (isAnimating || !container) return;
@@ -151,7 +142,6 @@ function clearGraph() {
     svg = document.getElementById('edges-svg');
     resetGraphState();
 }
-
 
 function clearPaths() {
     if (isAnimating) return;
@@ -167,7 +157,6 @@ function clearPaths() {
         statusBox.style.display = 'none';
     }
 }
-
 
 function addNode(x, y, type = 'normal', label = null) {
     const id = nodeIdCounter++;
@@ -196,7 +185,6 @@ function addNode(x, y, type = 'normal', label = null) {
     return id;
 }
 
-
 function addEdge(u, v, w = 1) {
     if (!adjList[u] || !adjList[v] || !Number.isFinite(w)) return;
     if (adjList[u].some((edge) => edge.v === v)) return;
@@ -222,7 +210,6 @@ function addEdge(u, v, w = 1) {
     syncEdgeWeightLabels();
     updateEdges();
 }
-
 
 function updateEdgePosition(edge) {
     const uNode = nodes[edge.u];
@@ -251,11 +238,9 @@ function updateEdgePosition(edge) {
     edge.textEl.setAttribute('y', midY + 5);
 }
 
-
 function updateEdges() {
     edges.forEach(updateEdgePosition);
 }
-
 
 function parseEdgeList(text, startInput, targetInput) {
     const edgesToBuild = [];
@@ -287,7 +272,6 @@ function parseEdgeList(text, startInput, targetInput) {
     return { edgesToBuild, uniqueNodes };
 }
 
-
 function fillNumericNodeGaps(uniqueNodes) {
     let isNumeric = true;
     let maxNode = 0;
@@ -312,7 +296,6 @@ function fillNumericNodeGaps(uniqueNodes) {
     }
 }
 
-
 function sortNodeNames(uniqueNodes) {
     return Array.from(uniqueNodes).sort((a, b) => {
         const numA = Number.parseFloat(a);
@@ -325,14 +308,12 @@ function sortNodeNames(uniqueNodes) {
     });
 }
 
-
 function getNodeType(nodeName, startInput, targetInput) {
     if (nodeName === startInput && nodeName === targetInput) return 'start target';
     if (nodeName === startInput) return 'start';
     if (nodeName === targetInput) return 'target';
     return 'normal';
 }
-
 
 function buildGridLayout(nodesArray) {
     const width = container.clientWidth || 800;
@@ -357,7 +338,6 @@ function buildGridLayout(nodesArray) {
         };
     });
 }
-
 
 function buildGraphFromEdgeList() {
     if (isAnimating) return;
@@ -391,7 +371,6 @@ function buildGraphFromEdgeList() {
     parsed.edgesToBuild.forEach(([u, v, w]) => addEdge(nodeMap[u], nodeMap[v], w));
 }
 
-
 function createSearchState() {
     const visited = {};
     const prev = {};
@@ -403,7 +382,6 @@ function createSearchState() {
 
     return { visited, prev };
 }
-
 
 function runBFS() {
     const { visited, prev } = createSearchState();
@@ -435,7 +413,6 @@ function runBFS() {
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
 
-
 function runDFS() {
     const { visited, prev } = createSearchState();
     const visitedOrder = [];
@@ -465,7 +442,6 @@ function runDFS() {
     dfs(startNodeId);
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
-
 
 function runDijkstra() {
     const visited = {};
@@ -510,7 +486,6 @@ function runDijkstra() {
     animateAlgorithm(visitedOrder, targetFound ? getShortestPath(prev, targetNodeId) : [], prev);
 }
 
-
 function getShortestPath(prev, target) {
     const path = [];
     let curr = target;
@@ -522,7 +497,6 @@ function getShortestPath(prev, target) {
 
     return path;
 }
-
 
 function startAlgorithm() {
     if (isAnimating) return;
@@ -553,7 +527,6 @@ function startAlgorithm() {
     if (algo === 'dijkstra') runDijkstra();
 }
 
-
 function setTraversalStatus(prev, curr) {
     const statusBox = document.getElementById('algo-status-box');
     if (!statusBox) return;
@@ -570,7 +543,6 @@ function setTraversalStatus(prev, curr) {
 
     statusBox.innerHTML = `Bắt đầu tại: <span class="node-highlight">${getNodeDisplayName(curr)}</span>`;
 }
-
 
 function animateAlgorithm(visitedOrder, pathNodes, prev) {
     isAnimating = true;
@@ -589,7 +561,6 @@ function animateAlgorithm(visitedOrder, pathNodes, prev) {
     setTimeout(() => animateShortestPath(pathNodes), delay * visitedOrder.length);
 }
 
-
 function finishAnimation(message, tone) {
     isAnimating = false;
     showVisualizerStatus(message, tone);
@@ -600,7 +571,6 @@ function finishAnimation(message, tone) {
         btnRun.innerHTML = 'Chạy thuật toán';
     }
 }
-
 
 function animateShortestPath(pathNodes) {
     if (pathNodes.length === 0) {
@@ -637,7 +607,6 @@ function animateShortestPath(pathNodes) {
     });
 }
 
-
 function initVisualizer() {
     container = document.getElementById('graph-container');
     svg = document.getElementById('edges-svg');
@@ -664,7 +633,6 @@ function initVisualizer() {
         draggingNodeId = null;
     });
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
     initVisualizer();
